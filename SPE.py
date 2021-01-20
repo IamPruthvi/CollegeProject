@@ -96,7 +96,7 @@ class PageTwo(tk.Frame):
             plt.ylabel('Marks')
             plt.bar(subjects, marks)
             plt.show()
-            print('hello world')
+
 
 app = SPE_src()
 app.mainloop()
