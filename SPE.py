@@ -4,10 +4,12 @@ from tkinter import filedialog
 from PIL import ImageTk, Image
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib import style
 # from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 # from matplotlib.figure import Figure
 import pandas as pd
 import numpy as np
+style.use('ggplot')
 
 matplotlib.use('TkAgg')
 
@@ -64,10 +66,6 @@ class PageTwo(tk.Frame):
         label.pack(padx=10, pady=10)
         button = ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StartPage))
         button.pack()
-        # AddFile = ttk.Button(self, text='Add File', command=lambda:
-        # filedialog.askopenfilename(initialdir="D:/Actual Study Material/My projects/Python",
-        #                            filetypes=(('CSV Files', '*.csv'), ("All Files", "*."))))
-        # AddFile.pack()
         # f = Figure(figsize=(5, 5), dpi=100)
         # a = f.add_subplot(111)
         # a.plot([1, 2, 3, 4, 5, 6, 7, 8], [6, 2, 6, 3, 5, 1, 2, 4])
@@ -99,4 +97,5 @@ class PageTwo(tk.Frame):
 
 
 app = SPE_src()
+# app.geometry('1280x720')
 app.mainloop()
