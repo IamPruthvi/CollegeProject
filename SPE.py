@@ -55,8 +55,8 @@ class PageOne(tk.Frame):
         tk.Frame.__init__(self, parent)
         label = ttk.Label(self, text='Students Performance Evaluation', font=LARGE_FONT)
         label.pack(pady=10, padx=10)
-        button1 = ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StartPage))
-        button1.pack()
+        StartPageBtn = ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StartPage))
+        StartPageBtn.pack()
 
 
 class PageTwo(tk.Frame):
@@ -64,9 +64,9 @@ class PageTwo(tk.Frame):
         tk.Frame.__init__(self, parent)
         label = ttk.Label(self, text='Graph')
         label.pack(padx=10, pady=10)
-        button = ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StartPage))
-        button.pack()
-        # f = Figure(figsize=(5, 5), dpi=100)
+        back = ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StartPage))
+        back.pack()
+        # f = Figure(figsize = (5, 5), dpi=100)
         # a = f.add_subplot(111)
         # a.plot([1, 2, 3, 4, 5, 6, 7, 8], [6, 2, 6, 3, 5, 1, 2, 4])
         # canvas = FigureCanvasTkAgg(f, self)
