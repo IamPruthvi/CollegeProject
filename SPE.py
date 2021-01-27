@@ -76,7 +76,7 @@ class PageTwo(tk.Frame):
         # canvas.tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         # canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         AddFile = ttk.Button(self, text='Add File', command=self.marks_wrt_subject)
-        AddFile.pack()
+        AddFile.pack()  # check
 
     @staticmethod
     def marks_wrt_subject():
