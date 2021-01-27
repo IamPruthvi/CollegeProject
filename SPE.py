@@ -24,6 +24,14 @@ class SPE_src(tk.Tk):
         container.pack(side='top', fill='both', expand=True)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
+        menuBar = tk.Menu(container)
+        fileMenu = tk.Menu(menuBar, tearoff=False)
+        fileMenu.add_command(label='Save Settings', command=lambda: self.popupmsg('Not Supported Yet.'))
+        fileMenu.add_separator()
+        fileMenu.add_command(label='Close', command=quit)
+
+        menuBar.add_cascade(label='File', menu=fileMenu)
+        tk.Tk.config(self, menu=menuBar)
         self.frames = {}
         for F in (StartPage, PageOne, PageTwo):
             frame = F(container, self)
@@ -34,6 +42,15 @@ class SPE_src(tk.Tk):
     def show_frame(self, cont):
         frame = self.frames[cont]
         frame.tkraise()
+
+    @staticmethod
+    def popupmsg(msg):
+        popup = tk.Tk()
+        popup.wm_title('Save Settings')
+        label = tk.ttk.Label(popup, text=msg,)
+        label.pack()
+        b1 = tk.ttk.Button(popup, text='Close', command=popup.destroy)
+        b1.pack()
 
 
 class StartPage(tk.Frame):
