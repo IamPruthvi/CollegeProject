@@ -60,11 +60,15 @@ class StartPage(tk.Frame):
         label.grid(columnspan=2, pady=10)
         self.img = ImageTk.PhotoImage(Image.open(path))
         panel = tk.Label(self, image=self.img)
-        panel.grid(rowspan=2, padx=50, pady=10)
-        button1 = tk.Button(self, text='Page 1', command=lambda: controller.show_frame(PageOne))
-        button1.grid(row=1, column=1, padx=20)
-        button2 = tk.Button(self, text='Page 2', command=lambda: controller.show_frame(PageTwo))
-        button2.grid(row=2, column=1)
+        panel.grid(rowspan=2, padx=10, pady=10)
+        agreement = 'By Clicking on next you hereby '+'\n'\
+                    'Agree to use our policy'
+        agmtText = tk.Label(self, text=agreement, bg='white', font=LARGE_FONT, relief=tk.RIDGE)
+        agmtText.grid(row=1, column=1, padx=25, ipadx=20, ipady=50)
+        CloseBtn = tk.Button(self, text='Exit', command=lambda: exit())
+        CloseBtn.grid(row=2, column=1, sticky='SE', padx=100, pady=25)
+        NextBtn = tk.Button(self, text='Next', command=lambda: controller.show_frame(PageTwo))
+        NextBtn.grid(row=2, column=1, sticky='SE', padx=25, pady=25,)
 
 
 class PageOne(tk.Frame):
