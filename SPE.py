@@ -33,7 +33,7 @@ class SPE_src(tk.Tk):
         menuBar.add_cascade(label='File', menu=fileMenu)
         tk.Tk.config(self, menu=menuBar)
         self.frames = {}
-        for F in (StartPage, PageOne, PageTwo):
+        for F in (StartPage, OptionFrame):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky='nsew')
@@ -59,28 +59,23 @@ class StartPage(tk.Frame):
         label = tk.Label(self, text='Students Performance Evaluation', font=LARGE_FONT)
         label.grid(columnspan=2, pady=10)
         self.img = ImageTk.PhotoImage(Image.open(path))
-        panel = tk.Label(self, image=self.img)
-        panel.grid(rowspan=2, padx=10, pady=10)
+        panel = tk.Label(self, image=self.img, relief=tk.RIDGE)
+        panel.grid(rowspan=2, padx=25, pady=25)
         agreement = 'By Clicking on next you hereby '+'\n'\
-                    'Agree to use our policy'
+                    'Agree to use our policy'+'\n'\
+                    'We assure you that we won\'t sell out''\n'\
+                    'your data. It will only be used to improve this''\n'\
+                    'software. ''\n\n'\
+                    'Enjoy using this Software!'
         agmtText = tk.Label(self, text=agreement, bg='white', font=LARGE_FONT, relief=tk.RIDGE)
         agmtText.grid(row=1, column=1, padx=25, ipadx=20, ipady=50)
-        CloseBtn = tk.Button(self, text='Exit', command=lambda: exit())
-        CloseBtn.grid(row=2, column=1, sticky='SE', padx=100, pady=25)
-        NextBtn = tk.Button(self, text='Next', command=lambda: controller.show_frame(PageTwo))
+        CloseBtn = tk.ttk.Button(self, text='Exit', command=lambda: exit())
+        CloseBtn.grid(row=2, column=1, sticky='SE', padx=125, pady=25,)
+        NextBtn = tk.ttk.Button(self, text='Next', command=lambda: controller.show_frame(OptionFrame))
         NextBtn.grid(row=2, column=1, sticky='SE', padx=25, pady=25,)
 
 
-class PageOne(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        label = ttk.Label(self, text='Students Performance Evaluation', font=LARGE_FONT)
-        label.pack(pady=10, padx=10)
-        StartPageBtn = ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StartPage))
-        StartPageBtn.pack()
-
-
-class PageTwo(tk.Frame):
+class OptionFrame(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         label = ttk.Label(self, text='Graph')
