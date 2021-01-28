@@ -35,7 +35,7 @@ class SPE_src(tk.Tk):
         menuBar.add_cascade(label='File', menu=fileMenu)
         tk.Tk.config(self, menu=menuBar)
         self.frames = {}
-        for F in (StartPage, OptionFrame, StudentORTeacher):
+        for F in (StartPage, StudOptionFrame, StudentORTeacher):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky='nsew')
@@ -82,7 +82,7 @@ class StudentORTeacher(tk.Frame):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text='Who are you?', font=LARGE_FONT)
         label.grid(columnspan=3, pady=10)
-        back = tk.ttk.Button(self, text='back', command=lambda: controller.show_frame(StartPage))
+        back = tk.ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StartPage))
         back.grid(row=0, columnspan=3, sticky='NW', padx=20, pady=20)
         self.studImg = ImageTk.PhotoImage(Image.open('student.png'))
         panel = tk.Label(self, image=self.studImg, relief=tk.RIDGE)
@@ -90,34 +90,29 @@ class StudentORTeacher(tk.Frame):
         self.teachImg = ImageTk.PhotoImage(Image.open('teacher.png'))
         panel = tk.Label(self, image=self.teachImg, relief=tk.RIDGE)
         panel.grid(row=1, column=2, padx=25, pady=25)  # r = --- c = ||||
-        Student = tk.ttk.Button(self, text='Student', command=lambda: controller.show_frame(OptionFrame))
+        Student = tk.ttk.Button(self, text='Student', command=lambda: controller.show_frame(StudOptionFrame))
         Student.grid(row=2, column=1, padx=125, pady=25, )
-        Teacher = tk.ttk.Button(self, text='Teacher', command=lambda: controller.show_frame(OptionFrame))
+        Teacher = tk.ttk.Button(self, text='Teacher', command=lambda: controller.show_frame(StudOptionFrame))
         Teacher.grid(row=2, column=2, padx=25, pady=25, )
 
 
-class OptionFrame(tk.Frame):
+class StudOptionFrame(tk.Frame):
     def __init__(self, parent, controller):
+        self.file = ''
         tk.Frame.__init__(self, parent)
-        label = ttk.Label(self, text='Graph')
-        label.pack(padx=10, pady=10)
-        back = ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StartPage))
-        back.pack()
-        # f = Figure(figsize = (5, 5), dpi=100)
-        # a = f.add_subplot(111)
-        # a.plot([1, 2, 3, 4, 5, 6, 7, 8], [6, 2, 6, 3, 5, 1, 2, 4])
-        # canvas = FigureCanvasTkAgg(f, self)
-        # canvas.draw()
-        # toolbar = NavigationToolbar2Tk(canvas, self)
-        # toolbar.update()
-        # canvas.tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        # canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        AddFile = ttk.Button(self, text='Add File', command=lambda: self.getFile(self))
-        AddFile.pack()  # check
-        self.fileStatus = tk.ttk.Label(self, text='Add file...')
-        self.fileStatus.pack()
-        SubMarksGph = tk.ttk.Button(self, text='Subject vs Marks', command=lambda: self.marks_wrt_subject(self))
-        SubMarksGph.pack()
+        label = tk.Label(self, text='Student', font=LARGE_FONT)
+        label.grid(row=0, column=1, padx=100, pady=10)
+        back = tk.ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StudentORTeacher))
+        back.grid(row=0, column=0, padx=10, pady=10)
+        addFileBtn = tk.ttk.Button(self, text='Add File', command=lambda: self.getFile(self))
+        addFileBtn.grid(row=1, column=0, pady=150)
+        self.fileStatus = tk.Label(self, text='Add a File')
+        self.fileStatus.grid(row=1, column=1)
+        SubVSMks = tk.ttk.Button(self, text='Subject VS Marks', command=lambda: self.marks_wrt_subject(self))
+        SubVSMks.grid(row=1, column=2)
+        SubVSMks = tk.ttk.Button(self, text='Subject VS Marks', command=lambda: self.marks_wrt_subject(self))
+        SubVSMks.grid(row=1, column=2, pady=115, sticky='N')
+        self.file = ''
 
     @staticmethod
     def getFile(self):
@@ -143,7 +138,7 @@ class OptionFrame(tk.Frame):
             plt.bar(subjects, marks)
             plt.show()
         else:
-            messagebox.showwarning('File Error', 'File not found')
+            messagebox.showwarning('Error 404', 'File not found')
 
 
 app = SPE_src()
