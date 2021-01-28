@@ -10,11 +10,12 @@ from matplotlib import style
 # from matplotlib.figure import Figure
 import pandas as pd
 import numpy as np
+
 style.use('ggplot')
 
 matplotlib.use('TkAgg')
 
-path = 'D:/graph.png'
+path = 'graph.png'
 LARGE_FONT = ('RobotoMono-Medium', 13)
 
 
@@ -34,7 +35,7 @@ class SPE_src(tk.Tk):
         menuBar.add_cascade(label='File', menu=fileMenu)
         tk.Tk.config(self, menu=menuBar)
         self.frames = {}
-        for F in (StartPage, OptionFrame):
+        for F in (StartPage, OptionFrame, StudentORTeacher):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky='nsew')
@@ -48,7 +49,7 @@ class SPE_src(tk.Tk):
     def popupmsg(msg):
         popup = tk.Tk()
         popup.wm_title('Save Settings')
-        label = tk.ttk.Label(popup, text=msg,)
+        label = tk.ttk.Label(popup, text=msg, )
         label.pack()
         b1 = tk.ttk.Button(popup, text='Close', command=popup.destroy)
         b1.pack()
@@ -62,18 +63,37 @@ class StartPage(tk.Frame):
         self.img = ImageTk.PhotoImage(Image.open(path))
         panel = tk.Label(self, image=self.img, relief=tk.RIDGE)
         panel.grid(rowspan=2, padx=25, pady=25)
-        agreement = 'By Clicking on next you hereby '+'\n'\
-                    'Agree to use our policy'+'\n'\
-                    'We assure you that we won\'t sell out''\n'\
-                    'your data. It will only be used to improve this''\n'\
-                    'software. ''\n\n'\
-                    'Enjoy using this Software!'
+        agreement = 'By Clicking on next you hereby ' + '\n' \
+                                                        'Agree to use our policy' + '\n' \
+                                                                                    'We assure you that we won\'t sell out''\n' \
+                                                                                    'your data. It will only be used to improve this''\n' \
+                                                                                    'software. ''\n\n' \
+                                                                                    'Enjoy using this Software!'
         agmtText = tk.Label(self, text=agreement, bg='white', font=LARGE_FONT, relief=tk.RIDGE)
         agmtText.grid(row=1, column=1, padx=25, ipadx=20, ipady=50)
         CloseBtn = tk.ttk.Button(self, text='Exit', command=lambda: exit())
-        CloseBtn.grid(row=2, column=1, sticky='SE', padx=125, pady=25,)
-        NextBtn = tk.ttk.Button(self, text='Next', command=lambda: controller.show_frame(OptionFrame))
-        NextBtn.grid(row=2, column=1, sticky='SE', padx=25, pady=25,)
+        CloseBtn.grid(row=2, column=1, sticky='SE', padx=125, pady=25, )
+        NextBtn = tk.ttk.Button(self, text='Next', command=lambda: controller.show_frame(StudentORTeacher))
+        NextBtn.grid(row=2, column=1, sticky='SE', padx=25, pady=25, )
+
+
+class StudentORTeacher(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text='Who are you?', font=LARGE_FONT)
+        label.grid(columnspan=3, pady=10)
+        back = tk.ttk.Button(self, text='back', command=lambda: controller.show_frame(StartPage))
+        back.grid(row=0, columnspan=3, sticky='NW', padx=20, pady=20)
+        self.studImg = ImageTk.PhotoImage(Image.open('student.png'))
+        panel = tk.Label(self, image=self.studImg, relief=tk.RIDGE)
+        panel.grid(row=1, column=1, padx=25, pady=25)
+        self.teachImg = ImageTk.PhotoImage(Image.open('teacher.png'))
+        panel = tk.Label(self, image=self.teachImg, relief=tk.RIDGE)
+        panel.grid(row=1, column=2, padx=25, pady=25)  # r = --- c = ||||
+        Student = tk.ttk.Button(self, text='Student', command=lambda: controller.show_frame(OptionFrame))
+        Student.grid(row=2, column=1, padx=125, pady=25, )
+        Teacher = tk.ttk.Button(self, text='Teacher', command=lambda: controller.show_frame(OptionFrame))
+        Teacher.grid(row=2, column=2, padx=25, pady=25, )
 
 
 class OptionFrame(tk.Frame):
@@ -104,7 +124,7 @@ class OptionFrame(tk.Frame):
         self.file = filedialog.askopenfilename(initialdir="D:/Actual Study Material/My projects/Python",
                                                filetypes=(('CSV Files', '*.csv'), ("All Files", "*.")))
         if self.file == '':
-             self.fileStatus.config(text='No File Added'.upper())
+            self.fileStatus.config(text='No File Added'.upper())
         else:
             self.fileStatus.config(text='File Added'.upper())
 
