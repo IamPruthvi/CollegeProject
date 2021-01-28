@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
+from tkinter import messagebox
 from PIL import ImageTk, Image
 import matplotlib
 import matplotlib.pyplot as plt
@@ -91,15 +92,26 @@ class OptionFrame(tk.Frame):
         # toolbar.update()
         # canvas.tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         # canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        AddFile = ttk.Button(self, text='Add File', command=self.marks_wrt_subject)
+        AddFile = ttk.Button(self, text='Add File', command=lambda: self.getFile(self))
         AddFile.pack()  # check
+        self.fileStatus = tk.ttk.Label(self, text='Add file...')
+        self.fileStatus.pack()
+        SubMarksGph = tk.ttk.Button(self, text='Subject vs Marks', command=lambda: self.marks_wrt_subject(self))
+        SubMarksGph.pack()
 
     @staticmethod
-    def marks_wrt_subject():
-        file = filedialog.askopenfilename(initialdir="D:/Actual Study Material/My projects/Python",
-                                          filetypes=(('CSV Files', '*.csv'), ("All Files", "*.")))
-        if file != '':
-            data = pd.read_csv(file)
+    def getFile(self):
+        self.file = filedialog.askopenfilename(initialdir="D:/Actual Study Material/My projects/Python",
+                                               filetypes=(('CSV Files', '*.csv'), ("All Files", "*.")))
+        if self.file == '':
+             self.fileStatus.config(text='No File Added'.upper())
+        else:
+            self.fileStatus.config(text='File Added'.upper())
+
+    @staticmethod
+    def marks_wrt_subject(self):
+        if self.file != '':
+            data = pd.read_csv(self.file)
             col = data.columns
             subjects = data[col[0]]
             marks = data[col[1]]
@@ -110,8 +122,11 @@ class OptionFrame(tk.Frame):
             plt.ylabel('Marks')
             plt.bar(subjects, marks)
             plt.show()
+        else:
+            messagebox.showwarning('File Error', 'File not found')
 
 
 app = SPE_src()
+app.resizable(width=0, height=0)
 # app.geometry('1280x720')
 app.mainloop()
