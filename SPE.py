@@ -64,11 +64,11 @@ class StartPage(tk.Frame):
         panel = tk.Label(self, image=self.img, relief=tk.RIDGE)
         panel.grid(rowspan=2, padx=25, pady=25)
         agreement = 'By Clicking on next you hereby ' + '\n' \
-                                                        'Agree to use our policy' + '\n' \
-                                                                                    'We assure you that we won\'t sell out''\n' \
-                                                                                    'your data. It will only be used to improve this''\n' \
-                                                                                    'software. ''\n\n' \
-                                                                                    'Enjoy using this Software!'
+                    'Agree to use our policy' + '\n' \
+                    'We assure you that we won\'t sell out' + '\n' \
+                    'your data. It will only be used to improve this' + '\n' \
+                    'software. ' + '\n\n' \
+                    'Enjoy using this Software!'
         agmtText = tk.Label(self, text=agreement, bg='white', font=LARGE_FONT, relief=tk.RIDGE)
         agmtText.grid(row=1, column=1, padx=25, ipadx=20, ipady=50)
         CloseBtn = tk.ttk.Button(self, text='Exit', command=lambda: exit())
@@ -99,20 +99,22 @@ class StudentORTeacher(tk.Frame):
 class StudOptionFrame(tk.Frame):
     def __init__(self, parent, controller):
         self.file = ''
+        self.SeatNum = tk.StringVar()
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text='Student', font=LARGE_FONT)
         label.grid(row=0, column=1, padx=100, pady=10)
         back = tk.ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StudentORTeacher))
-        back.grid(row=0, column=0, padx=10, pady=10)
+        back.grid(row=0, column=0, padx=0, pady=10)
+        SeatNumEntry = tk.ttk.Entry(self, textvariable=self.SeatNum)
+        SeatNumEntry.grid(row=1, column=0, sticky='NW', padx=5, pady=125)
         addFileBtn = tk.ttk.Button(self, text='Add File', command=lambda: self.getFile(self))
         addFileBtn.grid(row=1, column=0, pady=150)
         self.fileStatus = tk.Label(self, text='Add a File')
         self.fileStatus.grid(row=1, column=1)
         SubVSMks = tk.ttk.Button(self, text='Subject VS Marks', command=lambda: self.marks_wrt_subject(self))
         SubVSMks.grid(row=1, column=2)
-        SubVSMks = tk.ttk.Button(self, text='Subject VS Marks', command=lambda: self.marks_wrt_subject(self))
-        SubVSMks.grid(row=1, column=2, pady=115, sticky='N')
-        self.file = ''
+        AllSem = tk.ttk.Button(self, text='Your Performance VS Class', command=lambda: self.all_sem_performance())
+        AllSem.grid(row=1, column=2, pady=115, sticky='N')
 
     @staticmethod
     def getFile(self):
@@ -140,8 +142,33 @@ class StudOptionFrame(tk.Frame):
         else:
             messagebox.showwarning('Error 404', 'File not found')
 
+    def all_sem_performance(self):
+        if self.file != '' and self.SeatNum != '':
+            data = pd.read_csv(self.file)
+            col = data.columns
+            sub = col[2:]
+            students = np.array(data[col[0]])
+            SubMarks = [np.array(data[col[i]]) for i in range(2, 7)]
+            MaxOfAll = [np.max(i) for i in SubMarks]
+            AllAvg = [np.array(np.average(data[col[i]])) for i in range(2, 7)]
+            plt.title('Your Performance vs Class')
+            plt.bar(np.arange(5) + 0.00, MaxOfAll, color='#004c6d', width=0.25)
+            plt.bar(np.arange(5) + 0.25, AllAvg, color='#286d8a', width=0.25)
+            value = self.SeatNum.get()
+            print(value in students)
+            if value in students:
+                stud = data.loc[data['seat'] == value]
+                stud = np.array(stud[col[2:]].values).flatten()
+                plt.bar(np.arange(5) + 0.50, stud, color='#008cc9', width=0.25)
+            plt.xticks(np.arange(5), sub)
+            plt.legend(labels=['Max', 'Average', value])
+            plt.show()
+        else:
+            messagebox.showwarning('Error 404', 'File not found')
+
 
 app = SPE_src()
 app.resizable(width=0, height=0)
+app.title('Students Performance Evaluation')
 # app.geometry('1280x720')
 app.mainloop()
