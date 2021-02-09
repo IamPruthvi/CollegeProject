@@ -35,7 +35,7 @@ class SPE_src(tk.Tk):
         menuBar.add_cascade(label='File', menu=fileMenu)
         tk.Tk.config(self, menu=menuBar)
         self.frames = {}
-        for F in (StartPage, StudOptionFrame, StudentORTeacher):
+        for F in (StartPage, StudOptionFrame, StudentORTeacher, TchrOptionFrame):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky='nsew')
@@ -92,7 +92,7 @@ class StudentORTeacher(tk.Frame):
         panel.grid(row=1, column=2, padx=25, pady=25)  # r = --- c = ||||
         Student = tk.ttk.Button(self, text='Student', command=lambda: controller.show_frame(StudOptionFrame))
         Student.grid(row=2, column=1, padx=125, pady=25, )
-        Teacher = tk.ttk.Button(self, text='Teacher', command=lambda: controller.show_frame(StudOptionFrame))
+        Teacher = tk.ttk.Button(self, text='Teacher', command=lambda: controller.show_frame(TchrOptionFrame))
         Teacher.grid(row=2, column=2, padx=25, pady=25, )
 
 
@@ -155,13 +155,60 @@ class StudOptionFrame(tk.Frame):
             plt.bar(np.arange(5) + 0.00, MaxOfAll, color='#004c6d', width=0.25)
             plt.bar(np.arange(5) + 0.25, AllAvg, color='#286d8a', width=0.25)
             value = self.SeatNum.get()
-            print(value in students)
             if value in students:
                 stud = data.loc[data['seat'] == value]
                 stud = np.array(stud[col[2:]].values).flatten()
                 plt.bar(np.arange(5) + 0.50, stud, color='#008cc9', width=0.25)
             plt.xticks(np.arange(5), sub)
             plt.legend(labels=['Max', 'Average', value])
+            plt.show()
+        else:
+            messagebox.showwarning('Error 404', 'File not found')
+
+
+class TchrOptionFrame(tk.Frame):
+    def __init__(self, parent, controller):
+        self.file = ''
+        self.SeatNum = tk.StringVar()
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text='Student', font=LARGE_FONT)
+        label.grid(row=0, column=1, padx=100, pady=10)
+        back = tk.ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StudentORTeacher))
+        back.grid(row=0, column=0, padx=0, pady=10)
+        SeatNumEntry = tk.ttk.Entry(self, textvariable=self.SeatNum)
+        SeatNumEntry.grid(row=1, column=0, sticky='NW', padx=5, pady=125)
+        addFileBtn = tk.ttk.Button(self, text='Add File', command=lambda: self.getFile(self))
+        addFileBtn.grid(row=1, column=0, pady=150)
+        self.fileStatus = tk.Label(self, text='Add a File')
+        self.fileStatus.grid(row=1, column=1)
+        SubVSMks = tk.ttk.Button(self, text='Class Performance', command=lambda: self.ClassPerformance(self))
+        SubVSMks.grid(row=1, column=2)
+        AllSem = tk.ttk.Button(self, text='Class Growth')
+        AllSem.grid(row=1, column=2, pady=115, sticky='N')
+
+    @staticmethod
+    def getFile(self):
+        self.file = filedialog.askopenfilename(initialdir="D:/Actual Study Material/My projects/Python",
+                                               filetypes=(('CSV Files', '*.csv'), ("All Files", "*.")))
+        if self.file == '':
+            self.fileStatus.config(text='No File Added'.upper())
+        else:
+            self.fileStatus.config(text='File Added'.upper())
+
+    @staticmethod
+    def ClassPerformance(self):
+        if self.file != '':
+            data = pd.read_csv(self.file)
+            F = data.loc[data.Grade == 'F'].count()[0]
+            D = data.loc[data.Grade == 'D'].count()[0]
+            C = data.loc[data.Grade == 'C'].count()[0]
+            B = data.loc[data.Grade == 'B'].count()[0]
+            A = data.loc[data.Grade == 'A'].count()[0]
+            O = data.loc[data.Grade == 'O'].count()[0]
+            grade = [O, A, B, C, D, F]
+            labels = ['O', 'A', 'B', 'C', 'D', 'f']
+            plt.title("Student's data")
+            plt.pie(grade, labels=labels, autopct='%.2f %%', explode=[0.03 for i in range(0, 6)])
             plt.show()
         else:
             messagebox.showwarning('Error 404', 'File not found')
