@@ -6,6 +6,7 @@ from PIL import ImageTk, Image
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import style
+from matplotlib.pyplot import bar
 # from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 # from matplotlib.figure import Figure
 import pandas as pd
@@ -17,6 +18,7 @@ matplotlib.use('TkAgg')
 
 path = 'graph.png'
 LARGE_FONT = ('RobotoMono-Medium', 13)
+graphType = None
 
 
 class SPE_src(tk.Tk):
@@ -31,8 +33,13 @@ class SPE_src(tk.Tk):
         fileMenu.add_command(label='Save Settings', command=lambda: self.popupmsg('Not Supported Yet.'))
         fileMenu.add_separator()
         fileMenu.add_command(label='Close', command=quit)
-
+        graphMenu = tk.Menu(menuBar, tearoff=False)
+        graphMenu.add_command(label='Bar', command=lambda: self.graphTypefunc(bar))
+        graphMenu.add_command(label='Pie')
+        graphMenu.add_command(label='line')
         menuBar.add_cascade(label='File', menu=fileMenu)
+        menuBar.add_cascade(label='Graph', menu=graphMenu)
+        tk.Tk.config(self, menu=menuBar)
         tk.Tk.config(self, menu=menuBar)
         self.frames = {}
         for F in (StartPage, StudOptionFrame, StudentORTeacher, TchrOptionFrame):
@@ -40,6 +47,11 @@ class SPE_src(tk.Tk):
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky='nsew')
         self.show_frame(StartPage)
+
+    @staticmethod
+    def graphTypefunc(Type=bar):
+        global graphType
+        graphType = Type
 
     def show_frame(self, cont):
         frame = self.frames[cont]
@@ -181,9 +193,9 @@ class TchrOptionFrame(tk.Frame):
         addFileBtn.grid(row=1, column=0, pady=150)
         self.fileStatus = tk.Label(self, text='Add a File')
         self.fileStatus.grid(row=1, column=1)
-        SubVSMks = tk.ttk.Button(self, text='Class Performance', command=lambda: self.ClassPerformance(self))
-        SubVSMks.grid(row=1, column=2)
-        AllSem = tk.ttk.Button(self, text='Class Growth')
+        ClassPer = tk.ttk.Button(self, text='Class Performance', command=lambda: self.ClassPerformance(self))
+        ClassPer.grid(row=1, column=2)
+        AllSem = tk.ttk.Button(self, text='Class Growth', command=lambda: self.ClassGrowth(self))
         AllSem.grid(row=1, column=2, pady=115, sticky='N')
 
     @staticmethod
@@ -199,6 +211,7 @@ class TchrOptionFrame(tk.Frame):
     def ClassPerformance(self):
         if self.file != '':
             data = pd.read_csv(self.file)
+            print(data)
             F = data.loc[data.Grade == 'F'].count()[0]
             D = data.loc[data.Grade == 'D'].count()[0]
             C = data.loc[data.Grade == 'C'].count()[0]
@@ -206,12 +219,24 @@ class TchrOptionFrame(tk.Frame):
             A = data.loc[data.Grade == 'A'].count()[0]
             O = data.loc[data.Grade == 'O'].count()[0]
             grade = [O, A, B, C, D, F]
-            labels = ['O', 'A', 'B', 'C', 'D', 'f']
+            labels = ['O', 'A', 'B', 'C', 'D', 'F']
             plt.title("Student's data")
-            plt.pie(grade, labels=labels, autopct='%.2f %%', explode=[0.03 for i in range(0, 6)])
+            plt.pie(grade, labels=labels, autopct='%.2f %%', explode=np.array([0.03]*6))
             plt.show()
         else:
             messagebox.showwarning('Error 404', 'File not found')
+
+    @staticmethod
+    def ClassGrowth(self):
+        if self.file != '':
+            data = pd.read_csv(self.file)
+            semData = [np.mean(data.iloc[:, i]) for i in range(1, len(data.columns)-1)]
+            print(semData)
+            plt.plot(semData)
+            plt.ylim(5, 10)
+            plt.legend(labels=['Growth in avg. CGPA '])
+            plt.xticks(np.arange(6), ['I', 'II', 'III', 'IV', 'V', 'VI'])
+            plt.show()
 
 
 app = SPE_src()
