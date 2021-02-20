@@ -3,10 +3,8 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 from PIL import ImageTk, Image
-import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib import style
-from matplotlib.pyplot import bar
+from matplotlib import style, use
 # from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 # from matplotlib.figure import Figure
 import pandas as pd
@@ -14,7 +12,7 @@ import numpy as np
 
 style.use('ggplot')
 
-matplotlib.use('TkAgg')
+use('TkAgg')
 
 path = 'graph.png'
 LARGE_FONT = ('RobotoMono-Medium', 13)
@@ -34,9 +32,9 @@ class SPE_src(tk.Tk):
         fileMenu.add_separator()
         fileMenu.add_command(label='Close', command=quit)
         graphMenu = tk.Menu(menuBar, tearoff=False)
-        graphMenu.add_command(label='Bar', command=lambda: self.graphTypefunc(bar))
-        graphMenu.add_command(label='Pie')
-        graphMenu.add_command(label='line')
+        graphMenu.add_command(label='Bar', )
+        graphMenu.add_command(label='Pie', )
+        graphMenu.add_command(label='line',)
         menuBar.add_cascade(label='File', menu=fileMenu)
         menuBar.add_cascade(label='Graph', menu=graphMenu)
         tk.Tk.config(self, menu=menuBar)
@@ -47,11 +45,6 @@ class SPE_src(tk.Tk):
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky='nsew')
         self.show_frame(StartPage)
-
-    @staticmethod
-    def graphTypefunc(Type=bar):
-        global graphType
-        graphType = Type
 
     def show_frame(self, cont):
         frame = self.frames[cont]
@@ -119,16 +112,17 @@ class StudOptionFrame(tk.Frame):
         back.grid(row=0, column=0, padx=0, pady=10)
         SeatNumEntry = tk.ttk.Entry(self, textvariable=self.SeatNum)
         SeatNumEntry.grid(row=1, column=0, sticky='NW', padx=5, pady=125)
-        addFileBtn = tk.ttk.Button(self, text='Add File', command=lambda: self.getFile(self))
+        addFileBtn = tk.ttk.Button(self, text='Add File', command=lambda: self.getFile())
         addFileBtn.grid(row=1, column=0, pady=150)
         self.fileStatus = tk.Label(self, text='Add a File')
         self.fileStatus.grid(row=1, column=1)
-        SubVSMks = tk.ttk.Button(self, text='Subject VS Marks', command=lambda: self.marks_wrt_subject(self))
+        SubVSMks = tk.ttk.Button(self, text='Subject VS Marks', command=lambda: self.marks_wrt_subject())
         SubVSMks.grid(row=1, column=2)
         AllSem = tk.ttk.Button(self, text='Your Performance VS Class', command=lambda: self.all_sem_performance())
         AllSem.grid(row=1, column=2, pady=115, sticky='N')
+        IndStud = tk.ttk.Button(self, text='Individual Student', command=lambda: self.IndStud())
+        IndStud.grid(row=1, column=2, pady=80, sticky='N')
 
-    @staticmethod
     def getFile(self):
         self.file = filedialog.askopenfilename(initialdir="D:/Actual Study Material/My projects/Python",
                                                filetypes=(('CSV Files', '*.csv'), ("All Files", "*.")))
@@ -137,7 +131,6 @@ class StudOptionFrame(tk.Frame):
         else:
             self.fileStatus.config(text='File Added'.upper())
 
-    @staticmethod
     def marks_wrt_subject(self):
         if self.file != '':
             data = pd.read_csv(self.file)
@@ -177,28 +170,43 @@ class StudOptionFrame(tk.Frame):
         else:
             messagebox.showwarning('Error 404', 'File not found')
 
+    def IndStud(self):
+        if self.file != '' and self.SeatNum.get() != '':
+            student = self.SeatNum.get().upper()
+            data = pd.read_csv(self.file)
+            col = data.columns
+            subjects = [c for c in col][2:]
+            print(subjects)
+            SubjectMarks = data.loc[data.seat == student]
+            SubjectMarks = np.array(SubjectMarks[col[2:]].values).flatten()
+            plt.bar(subjects, SubjectMarks)
+            plt.show()
+        else:
+            messagebox.showwarning('Error 404', 'File not found')
+
 
 class TchrOptionFrame(tk.Frame):
     def __init__(self, parent, controller):
         self.file = ''
         self.SeatNum = tk.StringVar()
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text='Student', font=LARGE_FONT)
+        label = tk.Label(self, text='Teacher', font=LARGE_FONT)
         label.grid(row=0, column=1, padx=100, pady=10)
         back = tk.ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StudentORTeacher))
         back.grid(row=0, column=0, padx=0, pady=10)
         SeatNumEntry = tk.ttk.Entry(self, textvariable=self.SeatNum)
         SeatNumEntry.grid(row=1, column=0, sticky='NW', padx=5, pady=125)
-        addFileBtn = tk.ttk.Button(self, text='Add File', command=lambda: self.getFile(self))
+        addFileBtn = tk.ttk.Button(self, text='Add File', command=lambda: self.getFile())
         addFileBtn.grid(row=1, column=0, pady=150)
         self.fileStatus = tk.Label(self, text='Add a File')
         self.fileStatus.grid(row=1, column=1)
-        ClassPer = tk.ttk.Button(self, text='Class Performance', command=lambda: self.ClassPerformance(self))
+        ClassPer = tk.ttk.Button(self, text='Class Performance', command=lambda: self.ClassPerformance())
         ClassPer.grid(row=1, column=2)
-        AllSem = tk.ttk.Button(self, text='Class Growth', command=lambda: self.ClassGrowth(self))
-        AllSem.grid(row=1, column=2, pady=115, sticky='N')
+        ClassGrowth = tk.ttk.Button(self, text='Class Growth', command=lambda: self.ClassGrowth())
+        ClassGrowth.grid(row=1, column=2, pady=115, sticky='N')
+        Best3 = tk.ttk.Button(self, text='Best 3', command=lambda: StudOptionFrame.marks_wrt_subject(self))
+        Best3.grid(row=1, column=2, pady=80, sticky='N')
 
-    @staticmethod
     def getFile(self):
         self.file = filedialog.askopenfilename(initialdir="D:/Actual Study Material/My projects/Python",
                                                filetypes=(('CSV Files', '*.csv'), ("All Files", "*.")))
@@ -207,7 +215,6 @@ class TchrOptionFrame(tk.Frame):
         else:
             self.fileStatus.config(text='File Added'.upper())
 
-    @staticmethod
     def ClassPerformance(self):
         if self.file != '':
             data = pd.read_csv(self.file)
@@ -224,9 +231,8 @@ class TchrOptionFrame(tk.Frame):
             plt.pie(grade, labels=labels, autopct='%.2f %%', explode=np.array([0.03]*6))
             plt.show()
         else:
-            messagebox.showwarning('Error 404', 'File not found')
+            messagebox.showwarning('Error 404', 'File not found.')
 
-    @staticmethod
     def ClassGrowth(self):
         if self.file != '':
             data = pd.read_csv(self.file)
@@ -237,6 +243,8 @@ class TchrOptionFrame(tk.Frame):
             plt.legend(labels=['Growth in avg. CGPA '])
             plt.xticks(np.arange(6), ['I', 'II', 'III', 'IV', 'V', 'VI'])
             plt.show()
+        else:
+            messagebox.showwarning('Error 404', 'File not found.')
 
 
 app = SPE_src()
