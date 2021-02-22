@@ -19,6 +19,15 @@ LARGE_FONT = ('RobotoMono-Medium', 13)
 graphType = None
 
 
+def TryExcept(tryFunc):
+    try:
+        print('using TryExcept')
+        return tryFunc()
+
+    except AttributeError:
+        print('Error Found')
+
+
 class SPE_src(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -34,7 +43,7 @@ class SPE_src(tk.Tk):
         graphMenu = tk.Menu(menuBar, tearoff=False)
         graphMenu.add_command(label='Bar', )
         graphMenu.add_command(label='Pie', )
-        graphMenu.add_command(label='line',)
+        graphMenu.add_command(label='line', )
         menuBar.add_cascade(label='File', menu=fileMenu)
         menuBar.add_cascade(label='Graph', menu=graphMenu)
         tk.Tk.config(self, menu=menuBar)
@@ -68,12 +77,9 @@ class StartPage(tk.Frame):
         self.img = ImageTk.PhotoImage(Image.open(path))
         panel = tk.Label(self, image=self.img, relief=tk.RIDGE)
         panel.grid(rowspan=2, padx=25, pady=25)
-        agreement = 'By Clicking on next you hereby ' + '\n' \
-                    'Agree to use our policy' + '\n' \
-                    'We assure you that we won\'t sell out' + '\n' \
-                    'your data. It will only be used to improve this' + '\n' \
-                    'software. ' + '\n\n' \
-                    'Enjoy using this Software!'
+        agreement = 'By Clicking on next you hereby \n' \
+                    'Agree to use our policy\nWe assure you that we won\'t sell out\nyour data. ' \
+                    'It will only be used to improve this\nsoftware. \n\nEnjoy using this Software!'
         agmtText = tk.Label(self, text=agreement, bg='white', font=LARGE_FONT, relief=tk.RIDGE)
         agmtText.grid(row=1, column=1, padx=25, ipadx=20, ipady=50)
         CloseBtn = tk.ttk.Button(self, text='Exit', command=lambda: exit())
@@ -200,9 +206,10 @@ class TchrOptionFrame(tk.Frame):
         addFileBtn.grid(row=1, column=0, pady=150)
         self.fileStatus = tk.Label(self, text='Add a File')
         self.fileStatus.grid(row=1, column=1)
-        ClassPer = tk.ttk.Button(self, text='Class Performance', command=lambda: self.ClassPerformance())
+        ClassPer = tk.ttk.Button(self, text='Class Performance',
+                                 command=lambda: TryExcept(self.ClassPerformance))
         ClassPer.grid(row=1, column=2)
-        ClassGrowth = tk.ttk.Button(self, text='Class Growth', command=lambda: self.ClassGrowth())
+        ClassGrowth = tk.ttk.Button(self, text='Class Growth', command=lambda: TryExcept(self.ClassGrowth))
         ClassGrowth.grid(row=1, column=2, pady=115, sticky='N')
         Best3 = tk.ttk.Button(self, text='Best 3', command=lambda: StudOptionFrame.marks_wrt_subject(self))
         Best3.grid(row=1, column=2, pady=80, sticky='N')
@@ -228,7 +235,7 @@ class TchrOptionFrame(tk.Frame):
             grade = [O, A, B, C, D, F]
             labels = ['O', 'A', 'B', 'C', 'D', 'F']
             plt.title("Student's data")
-            plt.pie(grade, labels=labels, autopct='%.2f %%', explode=np.array([0.03]*6))
+            plt.pie(grade, labels=labels, autopct='%.2f %%', explode=np.array([0.03] * 6))
             plt.show()
         else:
             messagebox.showwarning('Error 404', 'File not found.')
@@ -236,7 +243,7 @@ class TchrOptionFrame(tk.Frame):
     def ClassGrowth(self):
         if self.file != '':
             data = pd.read_csv(self.file)
-            semData = [np.mean(data.iloc[:, i]) for i in range(1, len(data.columns)-1)]
+            semData = [np.mean(data.iloc[:, i]) for i in range(1, len(data.columns) - 1)]
             print(semData)
             plt.plot(semData)
             plt.ylim(5, 10)
