@@ -128,7 +128,7 @@ class StudOptionFrame(tk.Frame):
         SubVSMks.grid(row=1, column=2)
         AllSem = tk.ttk.Button(self, text='Your Performance VS Class', command=lambda: self.all_sem_performance())
         AllSem.grid(row=1, column=2, pady=115, sticky='N')
-        IndStud = tk.ttk.Button(self, text='Individual Student', command=lambda: self.check())
+        IndStud = tk.ttk.Button(self, text='Individual Student', command=lambda: self.IndStud())
         IndStud.grid(row=1, column=2, pady=80, sticky='N')
 
     def getFile(self):
@@ -141,9 +141,10 @@ class StudOptionFrame(tk.Frame):
             self.fileStatus.config(text='File Added'.upper())
             self.fileStatus.config(fg='#00FF00')
             self.data = pd.read_csv(self.file)
+            self.SeatData = np.array(self.data['Seat No'])
 
     def marks_wrt_subject(self):
-        if self.file != '':
+        if self.file != '' and self.SeatNum.get() != '':
             col = self.data.columns
             subjects = self.data[col[0]]
             marks = self.data[col[1]]
@@ -157,55 +158,49 @@ class StudOptionFrame(tk.Frame):
             messagebox.showwarning('Error 404', 'File not found')
 
     def all_sem_performance(self):
-        if self.file != '' and self.SeatNum != '':
-            col = self.data.columns
-            sub = col[2:]
-            students = np.array(self.data[col[0]])
-            SubMarks = [np.array(self.data[col[i]]) for i in range(2, 7)]
-            MaxOfAll = [np.max(i) for i in SubMarks]
-            AllAvg = [np.array(np.average(self.data[col[i]])) for i in range(2, 7)]
+        if self.file != '' and self.SeatNum.get().upper() in self.SeatData:
+            data = self.data
+            col = data.columns
+            Subjects = [''.join(list(c)[:-6]) for c in col][3:10]
+            SubjectData = []
+            Student = []
+            for i in range(0, len(self.SeatData), 6):
+                idx = pd.Index(self.SeatData)
+                locData = idx.get_loc(self.SeatData[i])
+                StudentData = data.loc[locData + 2, :]
+                OneData = np.array(StudentData[3:10]).astype(np.int)
+                if self.SeatData[i] == self.SeatNum.get().upper():
+                    Student = np.array(StudentData[3:10]).astype(np.int)
+                SubjectData.append(OneData)
+            SubjectData = np.transpose(SubjectData)
+            MaxOfAll = [np.max(i) for i in SubjectData]
+            AvgOfAll = [np.average(i) for i in SubjectData]
+            print(Student)
             plt.title('Your Performance vs Class')
-            plt.bar(np.arange(5) + 0.00, MaxOfAll, color='#004c6d', width=0.25)
-            plt.bar(np.arange(5) + 0.25, AllAvg, color='#286d8a', width=0.25)
-            value = self.SeatNum.get()
-            if value in students:
-                stud = self.data.loc[self.data['seat'] == value]
-                stud = np.array(stud[col[2:]].values).flatten()
-                plt.bar(np.arange(5) + 0.50, stud, color='#008cc9', width=0.25)
-            else:
-                messagebox.showwarning('Value Error', "Seat No. not found")
-            plt.xticks(np.arange(5), sub)
-            plt.legend(labels=['Max', 'Average', value])
+            plt.bar(np.arange(7) + 0.00, MaxOfAll, color='#004c6d', width=0.25)
+            plt.bar(np.arange(7) + 0.25, AvgOfAll, color='#286d8a', width=0.25)
+            plt.bar(np.arange(7) + 0.50, Student, color='#008cc9', width=0.25)
+            plt.xticks(np.arange(7), Subjects)
+            plt.legend(labels=['Max', 'Average', self.SeatNum.get().upper()])
             plt.show()
         else:
             messagebox.showwarning('Error 404', 'File not found')
 
     def IndStud(self):
-        if self.file != '' and self.SeatNum.get() != '':
-            student = self.SeatNum.get().upper()
-            col = self.data.columns
-            subjects = [c for c in col][2:]
-            print(subjects)
-            SubjectMarks = self.data.loc[self.data.seat == student]
-            SubjectMarks = np.array(SubjectMarks[col[2:]].values).flatten()
-            plt.bar(subjects, SubjectMarks)
+        if self.file != '' and self.SeatNum.get().upper() in self.SeatData:
+            data = self.data
+            col = data.columns
+            idx = pd.Index(self.SeatData)
+            locData = idx.get_loc(self.SeatNum.get().upper())
+            StudentData = data.loc[locData + 2, :]
+            SubjectData = np.array(StudentData[3:10]).astype(np.int)
+            Subjects = [''.join(list(c)[:-6]) for c in col][3:10]
+            plt.ylim(0, 100)
+            plt.bar(Subjects, SubjectData)
+            print(Subjects, SubjectData)
             plt.show()
         else:
             messagebox.showwarning('Error 404', 'File not found')
-
-    def check(self):
-        if self.file != '' and self.SeatNum.get() != '':
-            data = self.data
-            col = data.columns
-            seatData = self.data['Seat No']
-            idx = pd.Index(np.array(seatData))
-            locData = idx.get_loc(self.SeatNum.get().upper())
-            StudentData = data.loc[locData + 2, :]
-            SubjectData = StudentData[3:12]
-            Subjects = [''.join(list(c)[:-6]) for c in col][3:12]
-            plt.bar(Subjects, SubjectData)
-            plt.ylim([30, 110])
-            plt.show()
 
 
 class TchrOptionFrame(tk.Frame):
