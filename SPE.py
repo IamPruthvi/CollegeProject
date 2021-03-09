@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog, messagebox
 from typing import Any, Union
-
+from collections import OrderedDict
 from PIL import ImageTk, Image
 import matplotlib.pyplot as plt
 from matplotlib import style, use
@@ -15,7 +15,7 @@ style.use('ggplot')
 use('TkAgg')
 
 path = 'graph.png'
-LARGE_FONT = ('RobotoMono-Medium', 13)
+LARGE_FONT = ('RobotoMono-Medium', 15)
 bg = '#282c34'
 
 
@@ -95,11 +95,7 @@ class StudentORTeacher(tk.Frame):
         back = tk.ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StartPage))
         back.grid(row=0, columnspan=3, sticky='NW', padx=20, pady=20)
         self.studImg = ImageTk.PhotoImage(Image.open('student.png'))
-        # panel = tk.Label(self, image=self.studImg, relief=tk.RIDGE, bg=bg)
-        # panel.grid(row=1, column=1, padx=25, pady=25)
         self.teachImg = ImageTk.PhotoImage(Image.open('teacher.png'))
-        # panel = tk.Label(self, image=self.teachImg, relief=tk.RIDGE, bg=bg)
-        # panel.grid(row=1, column=2, padx=25, pady=25)  # r = --- c = ||||
         Student = tk.Button(self, text='Student', bg=bg, relief=tk.RIDGE, image=self.studImg, command=lambda: controller.show_frame(StudOptionFrame))
         Student.grid(row=2, column=1, padx=50, pady=25, )
         Teacher = tk.Button(self, text='Teacher', bg=bg, relief=tk.RIDGE, image=self.teachImg, command=lambda: controller.show_frame(TchrOptionFrame))
@@ -175,7 +171,6 @@ class StudOptionFrame(tk.Frame):
             SubjectData = np.transpose(SubjectData)
             MaxOfAll = [np.max(i) for i in SubjectData]
             AvgOfAll = [np.average(i) for i in SubjectData]
-            print(Student)
             plt.title('Your Performance vs Class')
             plt.bar(np.arange(7) + 0.00, MaxOfAll, color='#004c6d', width=0.25)
             plt.bar(np.arange(7) + 0.25, AvgOfAll, color='#286d8a', width=0.25)
@@ -197,7 +192,6 @@ class StudOptionFrame(tk.Frame):
             Subjects = [''.join(list(c)[:-6]) for c in col][3:10]
             plt.ylim(0, 100)
             plt.bar(Subjects, SubjectData)
-            print(Subjects, SubjectData)
             plt.show()
         else:
             messagebox.showwarning('Error 404', 'File not found')
@@ -219,38 +213,31 @@ class TchrOptionFrame(tk.Frame):
         SeatNumEntry.grid(row=1, column=0, sticky='NW', padx=5, pady=125)
         addFileBtn = tk.ttk.Button(self, text='Add File', command=lambda: self.getFile())
         addFileBtn.grid(row=1, column=0, pady=150)
-        self.fileStatus = tk.Label(self, text='Add a File')
+        self.fileStatus = tk.Label(self, text='Add a File', bg=bg, fg='white')
         self.fileStatus.grid(row=1, column=1)
-        ClassPer = tk.ttk.Button(self, text='Class Performance',
-                                 command=lambda: TryExcept(self.ClassPerformance))
+        ClassPer = tk.ttk.Button(self, text='Class Performance', command=lambda: TryExcept(self.ClassPerformance))
         ClassPer.grid(row=1, column=2)
         ClassGrowth = tk.ttk.Button(self, text='Class Growth', command=lambda: TryExcept(self.ClassGrowth))
         ClassGrowth.grid(row=1, column=2, pady=115, sticky='N')
-        Top3 = tk.ttk.Button(self, text='Top 3', command=lambda: TryExcept(self.Top3))
+        Top3 = tk.ttk.Button(self, text='Top 5', command=lambda: TryExcept(self.Top3))
         Top3.grid(row=1, column=2, pady=80, sticky='N')
 
     def getFile(self):
         self.file = filedialog.askopenfilename(initialdir="D:/Actual Study Material/My projects/Python",
                                                filetypes=(('CSV Files', '*.csv'), ("All Files", "*.")))
         if self.file == '':
-            self.fileStatus.config(text='No File Added'.upper())
+            self.fileStatus.config(text='No File Added'.upper(), fg='red')
         else:
-            self.fileStatus.config(text='File Added'.upper())
+            self.fileStatus.config(text='File Added'.upper(), fg='green')
             self.data = pd.read_csv(self.file)
 
     def ClassPerformance(self):
         if self.file != '':
-            print(self.data)
-            F = self.data.loc[self.data.Grade == 'F'].count()[0]
-            D = self.data.loc[self.data.Grade == 'D'].count()[0]
-            C = self.data.loc[self.data.Grade == 'C'].count()[0]
-            B = self.data.loc[self.data.Grade == 'B'].count()[0]
-            A = self.data.loc[self.data.Grade == 'A'].count()[0]
-            O = self.data.loc[self.data.Grade == 'O'].count()[0]
-            grade = [O, A, B, C, D, F]
-            labels = ['O', 'A', 'B', 'C', 'D', 'F']
+            grade = np.array(self.data.Grade)[2::6]
+            u, c = np.unique(grade, return_counts=True)
+            GradeCount = dict(zip(u, c))
             plt.title("Student's data")
-            plt.pie(grade, labels=labels, autopct='%.2f %%', explode=np.array([0.03] * 6))
+            plt.pie(GradeCount.values(), labels=GradeCount.keys(), autopct='%.2f %%', explode=np.array([0.03] * len(GradeCount)))
             plt.show()
         else:
             messagebox.showwarning('Error 404', 'File not found.')
@@ -258,7 +245,6 @@ class TchrOptionFrame(tk.Frame):
     def ClassGrowth(self):
         if self.file != '':
             semData = [np.mean(self.data.iloc[:, i]) for i in range(1, len(self.data.columns) - 1)]
-            print(semData)
             plt.plot(semData)
             plt.ylim(5, 10)
             plt.legend(labels=['Growth in avg. CGPA '])
@@ -269,12 +255,13 @@ class TchrOptionFrame(tk.Frame):
 
     def Top3(self):
         if self.file != '':
-            # col = self.data.columns
-            Top3 = sorted(np.array(self.data.I), reverse=True)[:3]
-            print(Top3)
-            names = np.array(self.data.Name)[:3]
-            print(names)
-            plt.bar(names, Top3)
+            Total = self.data['Total [ 20 ]'][2::6]
+            SeatNo = self.data['Seat No'][::6]
+            StudentData = sorted(list(zip(Total, SeatNo)))
+            SeatValue = [StudentData[-5:][i][1] for i in range(5)]
+            Marks = [StudentData[-5:][i][0] for i in range(5)]
+            plt.bar(SeatValue,  Marks)
+            plt.ylim(min(Marks)-50, max(Marks)+50)
             plt.show()
 
 
