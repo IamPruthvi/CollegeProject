@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog, messagebox
 from typing import Any, Union
-from collections import OrderedDict
 from PIL import ImageTk, Image
 import matplotlib.pyplot as plt
 from matplotlib import style, use
@@ -13,6 +12,11 @@ from pandas.io.parsers import TextFileReader
 
 style.use('ggplot')
 use('TkAgg')
+
+# Check Marks and other details.
+# Show graph of Passed VS Failed.
+# Add Congratulations to topper.
+# ZIP and mail.
 
 path = 'graph.png'
 LARGE_FONT = ('RobotoMono-Medium', 15)
@@ -32,6 +36,7 @@ class SPE_src(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         tk.Tk.config(self, bg=bg)
+        self.SeatNum = tk.StringVar()
         container = tk.Frame(self)
         container.pack(side='top', fill='both', expand=True)
         container.grid_rowconfigure(0, weight=1)
@@ -120,12 +125,15 @@ class StudOptionFrame(tk.Frame):
         addFileBtn.grid(row=1, column=0, pady=150)
         self.fileStatus = tk.Label(self, text='Add a File', bg=bg, fg='white')
         self.fileStatus.grid(row=1, column=1)
-        SubVSMks = tk.ttk.Button(self, text='Subject VS Marks', command=lambda: self.marks_wrt_subject())
+        SubVSMks = tk.ttk.Button(self, text='Subject VS Marks')
         SubVSMks.grid(row=1, column=2)
         AllSem = tk.ttk.Button(self, text='Your Performance VS Class', command=lambda: self.all_sem_performance())
         AllSem.grid(row=1, column=2, pady=115, sticky='N')
         IndStud = tk.ttk.Button(self, text='Individual Student', command=lambda: self.IndStud())
         IndStud.grid(row=1, column=2, pady=80, sticky='N')
+        StudentDetail = tk.ttk.Button(self, text='Student Detail', command=lambda: self.StudentDetail())
+        StudentDetail.grid(row=1, column=2, pady=50, sticky='N')
+        self.SeatData = np.array([])
 
     def getFile(self):
         self.file = filedialog.askopenfilename(initialdir="D:/Actual Study Material/My projects/Python",
@@ -138,20 +146,6 @@ class StudOptionFrame(tk.Frame):
             self.fileStatus.config(fg='#00FF00')
             self.data = pd.read_csv(self.file)
             self.SeatData = np.array(self.data['Seat No'])
-
-    def marks_wrt_subject(self):
-        if self.file != '' and self.SeatNum.get() != '':
-            col = self.data.columns
-            subjects = self.data[col[0]]
-            marks = self.data[col[1]]
-            plt.xticks(np.arange(len(subjects)), subjects)
-            plt.title("Student's data")
-            plt.xlabel(col[0])
-            plt.ylabel('Marks')
-            plt.bar(subjects, marks)
-            plt.show()
-        else:
-            messagebox.showwarning('Error 404', 'File not found')
 
     def all_sem_performance(self):
         if self.file != '' and self.SeatNum.get().upper() in self.SeatData:
@@ -190,9 +184,30 @@ class StudOptionFrame(tk.Frame):
             StudentData = data.loc[locData + 2, :]
             SubjectData = np.array(StudentData[3:10]).astype(np.int)
             Subjects = [''.join(list(c)[:-6]) for c in col][3:10]
-            plt.ylim(0, 100)
+            plt.ylim(0, 75)
             plt.bar(Subjects, SubjectData)
             plt.show()
+        else:
+            messagebox.showwarning('Error 404', 'File not found')
+
+    def StudentDetail(self):
+        if self.file != '' and self.SeatNum.get().upper() in self.SeatData:
+            data = self.data
+            idx = pd.Index(self.SeatData)
+            locData = idx.get_loc(self.SeatNum.get().upper())
+            Marks = np.array(data['Total [ 20 ]'])[locData+2]
+            NameValue = np.array(data['Name'])[locData]
+            Grade = np.array(data['Grade'])[locData+2]
+            StudentFrame = tk.Toplevel()
+            StudentFrame.geometry('700x350')
+            SeatLabel = tk.Label(master=StudentFrame, text='Seat  No. : {}'.format(self.SeatNum.get().upper()))
+            SeatLabel.grid(padx=20, pady=20, sticky=tk.W)
+            Name = tk.Label(master=StudentFrame, text='Name : {}'.format(NameValue))
+            Name.grid(row=1, column=0, padx=20, sticky=tk.W)
+            MarksLabel = tk.Label(master=StudentFrame, text='Marks : {}'.format(Marks))
+            MarksLabel.grid(row=2, column=0, padx=20, pady=20, sticky=tk.W)
+            GradeLabel = tk.Label(master=StudentFrame, text='Grade : {}'.format(Grade))
+            GradeLabel.grid(row=3, column=0, padx=20, sticky=tk.W)
         else:
             messagebox.showwarning('Error 404', 'File not found')
 
@@ -226,9 +241,9 @@ class TchrOptionFrame(tk.Frame):
         self.file = filedialog.askopenfilename(initialdir="D:/Actual Study Material/My projects/Python",
                                                filetypes=(('CSV Files', '*.csv'), ("All Files", "*.")))
         if self.file == '':
-            self.fileStatus.config(text='No File Added'.upper(), fg='red')
+            self.fileStatus.config(text='NO FILE ADDED', fg='red')
         else:
-            self.fileStatus.config(text='File Added'.upper(), fg='green')
+            self.fileStatus.config(text='FILE ADDED', fg='green')
             self.data = pd.read_csv(self.file)
 
     def ClassPerformance(self):
@@ -237,7 +252,9 @@ class TchrOptionFrame(tk.Frame):
             u, c = np.unique(grade, return_counts=True)
             GradeCount = dict(zip(u, c))
             plt.title("Student's data")
-            plt.pie(GradeCount.values(), labels=GradeCount.keys(), autopct='%.2f %%', explode=np.array([0.03] * len(GradeCount)))
+            plt.pie(GradeCount.values(), labels=GradeCount.keys(), autopct='%.2f %%',
+                    explode=np.array([0.03] * len(GradeCount)))
+            plt.legend()
             plt.show()
         else:
             messagebox.showwarning('Error 404', 'File not found.')
@@ -263,7 +280,6 @@ class TchrOptionFrame(tk.Frame):
             plt.bar(SeatValue,  Marks)
             plt.ylim(min(Marks)-50, max(Marks)+50)
             plt.show()
-
 
 app = SPE_src()
 app.resizable(width=0, height=0)
