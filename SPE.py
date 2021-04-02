@@ -132,7 +132,7 @@ class StudOptionFrame(tk.Frame):
         IndStud = tk.ttk.Button(self, text='Individual Student', command=lambda: self.IndStud())
         IndStud.grid(row=1, column=2, pady=80, sticky='N')
         StudentDetail = tk.ttk.Button(self, text='Student Detail', command=lambda: self.StudentDetail())
-        StudentDetail.grid(row=1, column=2, pady=50, sticky='N')
+        StudentDetail.grid(row=1, column=2, pady=40, sticky='N')
         self.SeatData = np.array([])
 
     def getFile(self):
@@ -198,6 +198,9 @@ class StudOptionFrame(tk.Frame):
             Marks = np.array(data['Total [ 20 ]'])[locData+2]
             NameValue = np.array(data['Name'])[locData]
             Grade = np.array(data['Grade'])[locData+2]
+            Remark = np.array(data['Grade'])[locData+1].replace('..', 'l')
+            RemarkColor = ['green' if Remark == 'Successful' else 'red']
+            CGPA = np.array(data['Grade'])[locData]
             StudentFrame = tk.Toplevel()
             StudentFrame.geometry('700x350')
             SeatLabel = tk.Label(master=StudentFrame, text='Seat  No. : {}'.format(self.SeatNum.get().upper()))
@@ -208,6 +211,10 @@ class StudOptionFrame(tk.Frame):
             MarksLabel.grid(row=2, column=0, padx=20, pady=20, sticky=tk.W)
             GradeLabel = tk.Label(master=StudentFrame, text='Grade : {}'.format(Grade))
             GradeLabel.grid(row=3, column=0, padx=20, sticky=tk.W)
+            CGPALabel = tk.Label(master=StudentFrame, text='CGPA : {}'.format(CGPA))
+            CGPALabel.grid(row=4, column=0, padx=20, pady=20, sticky=tk.W)
+            RemarkLabel = tk.Label(master=StudentFrame, text='Remark : {}'.format(Remark), fg=RemarkColor)
+            RemarkLabel.grid(row=5, column=0, padx=20, sticky=tk.W)
         else:
             messagebox.showwarning('Error 404', 'File not found')
 
@@ -236,6 +243,8 @@ class TchrOptionFrame(tk.Frame):
         ClassGrowth.grid(row=1, column=2, pady=115, sticky='N')
         Top3 = tk.ttk.Button(self, text='Top 5', command=lambda: TryExcept(self.Top3))
         Top3.grid(row=1, column=2, pady=80, sticky='N')
+        StudentDetail = tk.ttk.Button(self, text='Student Detail', command=lambda: self.StudentDetail())
+        StudentDetail.grid(row=1, column=2, pady=40, sticky='N')
 
     def getFile(self):
         self.file = filedialog.askopenfilename(initialdir="D:/Actual Study Material/My projects/Python",
@@ -245,6 +254,7 @@ class TchrOptionFrame(tk.Frame):
         else:
             self.fileStatus.config(text='FILE ADDED', fg='green')
             self.data = pd.read_csv(self.file)
+            self.SeatData = np.array(self.data['Seat No'])
 
     def ClassPerformance(self):
         if self.file != '':
@@ -275,11 +285,37 @@ class TchrOptionFrame(tk.Frame):
             Total = self.data['Total [ 20 ]'][2::6]
             SeatNo = self.data['Seat No'][::6]
             StudentData = sorted(list(zip(Total, SeatNo)))
-            SeatValue = [StudentData[-5:][i][1] for i in range(5)]
-            Marks = [StudentData[-5:][i][0] for i in range(5)]
+            SeatValue = np.array([StudentData[-5:][i][1] for i in range(5)])
+            Marks = np.array([StudentData[-5:][i][0] for i in range(5)])
             plt.bar(SeatValue,  Marks)
-            plt.ylim(min(Marks)-50, max(Marks)+50)
+            plt.ylim(np.min(Marks)-50, np.max(Marks)+50)
             plt.show()
+
+    def StudentDetail(self):
+        if self.file != '' and self.SeatNum.get().upper() in self.SeatData:
+            data = self.data
+            idx = pd.Index(self.SeatData)
+            locData = idx.get_loc(self.SeatNum.get().upper())
+            Marks = np.array(data['Total [ 20 ]'])[locData + 2]
+            NameValue = np.array(data['Name'])[locData]
+            Grade = np.array(data['Grade'])[locData + 2]
+            Remark = np.array(data['Grade'])[locData + 1].replace('..', 'll')
+            RemarkColor = ['green' if Remark == 'Successfull' else 'red']
+            StudentFrame = tk.Toplevel()
+            StudentFrame.geometry('700x350')
+            SeatLabel = tk.Label(master=StudentFrame, text='Seat  No. : {}'.format(self.SeatNum.get().upper()))
+            SeatLabel.grid(padx=20, pady=20, sticky=tk.W)
+            Name = tk.Label(master=StudentFrame, text='Name : {}'.format(NameValue))
+            Name.grid(row=1, column=0, padx=20, sticky=tk.W)
+            MarksLabel = tk.Label(master=StudentFrame, text='Marks : {}'.format(Marks))
+            MarksLabel.grid(row=2, column=0, padx=20, pady=20, sticky=tk.W)
+            GradeLabel = tk.Label(master=StudentFrame, text='Grade : {}'.format(Grade))
+            GradeLabel.grid(row=3, column=0, padx=20, sticky=tk.W)
+            RemarkLabel = tk.Label(master=StudentFrame, text='Remark : {}'.format(Remark), fg=RemarkColor)
+            RemarkLabel.grid(row=4, column=0, padx=20, pady=20, sticky=tk.W)
+        else:
+            messagebox.showwarning('Error 404', 'File not found')
+
 
 app = SPE_src()
 app.resizable(width=0, height=0)
