@@ -13,7 +13,7 @@ Seat No,Name,,FA [ 2 ],AJ [ 2 ],CN [ 2 ],SE [ 2 ],LAUP [ 2 ],NT [ 2 ],SEADF [ 2 
 ,,GP,6,8,8,6,9,7,7,8,8,,,
 ,,CG,12,16,16,12,18,14,14,24,24,150,,
 18SCS028,CHAUHAN KARTHIK,Int,10,10,15,10,10,10,14,,,79,GPA,5.2
-,VIJAY VIDHI,Ext,40,34,41,34,44,34,38,72,72,409,Remar..,Successfu..
+,VIJAY VIDHI,Ext,40,34,41,34,44,34,38,72,72,409,Remar..,Unsuccessfu..
 ,PRN: 2018016400301891,Total,50,44,56,44,54,44,52,72,72,488,Grade,C
 ,ID: 4973,Grade,B,D,B+,D,B,D,B,C,C,,Credits,20
 ,,GP,6,4,7,4,6,4,6,5,5,,,
@@ -78,3 +78,9 @@ Seat No,Name,,FA [ 2 ],AJ [ 2 ],CN [ 2 ],SE [ 2 ],LAUP [ 2 ],NT [ 2 ],SEADF [ 2 
 ,ID: 5025,Grade,A+,A,A+,A,A,A,A+,A,A,,Credits,20
 ,,GP,9,8,9,8,8,8,9,8,8,,,
 ,,CG,18,16,18,16,16,16,18,24,24,166,,
+18SCS066,SARPE KUNAL,Int,14,18,14,16,13,17,18,,,110,GPA,9
+,PRAMOD PREETI,Ext,53,57,53,55,53,56,57,117,117,618,Remar..,Successfu..
+,PRN: 2018016400300214,Total,67,75,67,71,66,73,75,117,117,728,Grade,A+
+,ID: 5013,Grade,A,A+,A,A+,A,A+,A+,O,O,,Credits,20
+,,GP,8,9,8,9,8,9,9,10,10,,,
+,,CG,16,18,16,18,16,18,18,30,30,180,,

@@ -1,22 +1,17 @@
-import tkinter as tk
-from tkinter import ttk
-from tkinter import filedialog, messagebox
+from tkinter import ttk, Tk, Frame, Menu, RIDGE, StringVar, Toplevel, Label, Button, filedialog, messagebox
 from typing import Any, Union
 from PIL import ImageTk, Image
-import matplotlib.pyplot as plt
+from matplotlib.pyplot import clf, bar, xticks, legend, title, ylim, show, pie, plot
 from matplotlib import style, use
-import pandas as pd
-import numpy as np
-from pandas import DataFrame, Series
+from numpy import array, transpose, max, average, mean, arange, unique, min
+from pandas import DataFrame, Series, read_csv, Index
 from pandas.io.parsers import TextFileReader
 
 style.use('ggplot')
 use('TkAgg')
 
-# Check Marks and other details.
-# Show graph of Passed VS Failed.
-# Add Congratulations to topper.
-# ZIP and mail.
+# TODO Add Congratulations to topper.
+# TODO ZIP and mail.
 
 path = 'graph.png'
 LARGE_FONT = ('RobotoMono-Medium', 15)
@@ -32,28 +27,27 @@ def TryExcept(tryFunc):
         print('Attribute Error Found')
 
 
-class SPE_src(tk.Tk):
+class SPE_src(Tk):
     def __init__(self, *args, **kwargs):
-        tk.Tk.__init__(self, *args, **kwargs)
-        tk.Tk.config(self, bg=bg)
-        self.SeatNum = tk.StringVar()
-        container = tk.Frame(self)
+        Tk.__init__(self, *args, **kwargs)
+        Tk.config(self, bg=bg)
+        self.SeatNum = StringVar()
+        container = Frame(self)
         container.pack(side='top', fill='both', expand=True)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
-        menuBar = tk.Menu(container)
-        fileMenu = tk.Menu(menuBar, tearoff=False)
+        menuBar = Menu(container)
+        fileMenu = Menu(menuBar, tearoff=False)
         fileMenu.add_command(label='Save Settings', command=lambda: self.popupmsg('Not Supported Yet.'))
         fileMenu.add_separator()
         fileMenu.add_command(label='Close', command=quit)
-        graphMenu = tk.Menu(menuBar, tearoff=False)
+        graphMenu = Menu(menuBar, tearoff=False)
         graphMenu.add_command(label='Bar', )
         graphMenu.add_command(label='Pie', )
         graphMenu.add_command(label='line', )
         menuBar.add_cascade(label='File', menu=fileMenu)
         menuBar.add_cascade(label='Graph', menu=graphMenu)
-        tk.Tk.config(self, menu=menuBar)
-        tk.Tk.config(self, menu=menuBar)
+        Tk.config(self, menu=menuBar)
 
         DT = ttk.Style()
         DT.configure('TButton', foreground='black', borderwidth=1, focusthickness=3,
@@ -71,69 +65,69 @@ class SPE_src(tk.Tk):
         frame.tkraise()
 
 
-class StartPage(tk.Frame):
+class StartPage(Frame):
     def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        tk.Frame.config(self, bg=bg)
-        label = tk.Label(self, text='Students Performance Evaluation', font=LARGE_FONT, bg=bg, fg='white')
+        Frame.__init__(self, parent)
+        Frame.config(self, bg=bg)
+        label = Label(self, text='Students Performance Evaluation', font=LARGE_FONT, bg=bg, fg='white')
         label.grid(columnspan=2, pady=10)
         self.img = ImageTk.PhotoImage(Image.open(path))
-        panel = tk.Label(self, image=self.img, bg=bg, relief=tk.RIDGE)
+        panel = Label(self, image=self.img, bg=bg, relief=RIDGE)
         panel.grid(rowspan=2, padx=25, pady=25)
         agreement = 'By Clicking on next you hereby \n' \
                     'Agree to use our policy\nWe assure you that we won\'t sell out\nyour data. ' \
                     'It will only be used to improve this\nsoftware. \n\nEnjoy using this Software!'
-        agmtText = tk.Label(self, text=agreement, bg=bg, font=LARGE_FONT, fg='white', relief=tk.RIDGE)
+        agmtText = Label(self, text=agreement, bg=bg, font=LARGE_FONT, fg='white', relief=RIDGE)
         agmtText.grid(row=1, column=1, padx=25, ipadx=20, ipady=50)
-        CloseBtn = tk.ttk.Button(self, text='Exit', command=lambda: exit())
+        CloseBtn = ttk.Button(self, text='Exit', command=lambda: exit())
         CloseBtn.grid(row=2, column=1, sticky='SE', padx=125, pady=25)
-        NextBtn = tk.ttk.Button(self, text='Next', command=lambda: controller.show_frame(StudentORTeacher))
+        NextBtn = ttk.Button(self, text='Next', command=lambda: controller.show_frame(StudentORTeacher))
         NextBtn.grid(row=2, column=1, sticky='SE', padx=25, pady=25, )
 
 
-class StudentORTeacher(tk.Frame):
+class StudentORTeacher(Frame):
     def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        tk.Frame.config(self, bg='#282c34')
-        label = tk.Label(self, text='Who are you?', font=LARGE_FONT, bg=bg, fg='white')
+        Frame.__init__(self, parent)
+        Frame.config(self, bg='#282c34')
+        label = Label(self, text='Who are you?', font=LARGE_FONT, bg=bg, fg='white')
         label.grid(columnspan=3, pady=10)
-        back = tk.ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StartPage))
+        back = ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StartPage))
         back.grid(row=0, columnspan=3, sticky='NW', padx=20, pady=20)
         self.studImg = ImageTk.PhotoImage(Image.open('student.png'))
         self.teachImg = ImageTk.PhotoImage(Image.open('teacher.png'))
-        Student = tk.Button(self, text='Student', bg=bg, relief=tk.RIDGE, image=self.studImg, command=lambda: controller.show_frame(StudOptionFrame))
+        Student = Button(self, text='Student', bg=bg, relief=RIDGE, image=self.studImg, command=lambda: controller.show_frame(StudOptionFrame))
         Student.grid(row=2, column=1, padx=50, pady=25, )
-        Teacher = tk.Button(self, text='Teacher', bg=bg, relief=tk.RIDGE, image=self.teachImg, command=lambda: controller.show_frame(TchrOptionFrame))
+        Teacher = Button(self, text='Teacher', bg=bg, relief=RIDGE, image=self.teachImg, command=lambda: controller.show_frame(TchrOptionFrame))
         Teacher.grid(row=2, column=2, padx=25, pady=25,)
 
 
-class StudOptionFrame(tk.Frame):
+class StudOptionFrame(Frame):
     data: Union[Union[TextFileReader, Series, DataFrame, None], Any]
 
     def __init__(self, parent, controller):
         self.file = ''
-        self.SeatNum = tk.StringVar()
-        tk.Frame.__init__(self, parent)
-        tk.Frame.config(self, bg=bg)
-        label = tk.Label(self, text='Student', font=LARGE_FONT, bg=bg, fg='white')
+        self.SeatNum = StringVar()
+        Frame.__init__(self, parent)
+        Frame.config(self, bg=bg)
+        label = Label(self, text='Student', font=LARGE_FONT, bg=bg, fg='white')
         label.grid(row=0, column=1, padx=100, pady=10)
-        back = tk.ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StudentORTeacher))
+        back = ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StudentORTeacher))
         back.grid(row=0, column=0, padx=0, pady=10)
-        SeatNumEntry = tk.ttk.Entry(self, textvariable=self.SeatNum)
+        SeatNumEntry = ttk.Entry(self, textvariable=self.SeatNum)
         SeatNumEntry.grid(row=1, column=0, sticky='NW', padx=5, pady=125)
-        addFileBtn = tk.ttk.Button(self, text='Add File', command=lambda: self.getFile())
+        addFileBtn = ttk.Button(self, text='Add File', command=lambda: self.getFile())
         addFileBtn.grid(row=1, column=0, pady=150)
-        self.fileStatus = tk.Label(self, text='Add a File', bg=bg, fg='white')
+        self.fileStatus = Label(self, text='Add a File', bg=bg, fg='white')
         self.fileStatus.grid(row=1, column=1)
-        SubVSMks = tk.ttk.Button(self, text='Subject VS Marks')
+        SubVSMks = ttk.Button(self, text='Subject VS Marks')
         SubVSMks.grid(row=1, column=2)
-        AllSem = tk.ttk.Button(self, text='Your Performance VS Class', command=lambda: self.all_sem_performance())
+        AllSem = ttk.Button(self, text='Your Performance VS Class', command=lambda: self.all_sem_performance())
         AllSem.grid(row=1, column=2, pady=115, sticky='N')
-        IndStud = tk.ttk.Button(self, text='Individual Student', command=lambda: self.IndStud())
+        IndStud = ttk.Button(self, text='Individual Student', command=lambda: self.IndStud())
         IndStud.grid(row=1, column=2, pady=80, sticky='N')
-        StudentDetail = tk.ttk.Button(self, text='Student Detail', command=lambda: self.StudentDetail())
+        StudentDetail = ttk.Button(self, text='Student Detail', command=lambda: self.StudentDetail())
         StudentDetail.grid(row=1, column=2, pady=40, sticky='N')
-        self.SeatData = np.array([])
+        self.SeatData = array([])
 
     def getFile(self):
         self.file = filedialog.askopenfilename(initialdir="D:/Actual Study Material/My projects/Python",
@@ -144,10 +138,11 @@ class StudOptionFrame(tk.Frame):
         else:
             self.fileStatus.config(text='File Added'.upper())
             self.fileStatus.config(fg='#00FF00')
-            self.data = pd.read_csv(self.file)
-            self.SeatData = np.array(self.data['Seat No'])
+            self.data = read_csv(self.file)
+            self.SeatData = array(self.data['Seat No'])
 
     def all_sem_performance(self):
+        clf()
         if self.file != '' and self.SeatNum.get().upper() in self.SeatData:
             data = self.data
             col = data.columns
@@ -155,96 +150,102 @@ class StudOptionFrame(tk.Frame):
             SubjectData = []
             Student = []
             for i in range(0, len(self.SeatData), 6):
-                idx = pd.Index(self.SeatData)
+                idx = Index(self.SeatData)
                 locData = idx.get_loc(self.SeatData[i])
                 StudentData = data.loc[locData + 2, :]
-                OneData = np.array(StudentData[3:10]).astype(np.int)
+                OneData = array(StudentData[3:10]).astype(int)
                 if self.SeatData[i] == self.SeatNum.get().upper():
-                    Student = np.array(StudentData[3:10]).astype(np.int)
+                    Student = array(StudentData[3:10]).astype(int)
                 SubjectData.append(OneData)
-            SubjectData = np.transpose(SubjectData)
-            MaxOfAll = [np.max(i) for i in SubjectData]
-            AvgOfAll = [np.average(i) for i in SubjectData]
-            plt.title('Your Performance vs Class')
-            plt.bar(np.arange(7) + 0.00, MaxOfAll, color='#004c6d', width=0.25)
-            plt.bar(np.arange(7) + 0.25, AvgOfAll, color='#286d8a', width=0.25)
-            plt.bar(np.arange(7) + 0.50, Student, color='#008cc9', width=0.25)
-            plt.xticks(np.arange(7), Subjects)
-            plt.legend(labels=['Max', 'Average', self.SeatNum.get().upper()])
-            plt.show()
+            SubjectData = transpose(SubjectData)
+            MaxOfAll = [max(i) for i in SubjectData]
+            AvgOfAll = [average(i) for i in SubjectData]
+            title('Your Performance vs Class')
+            bar(arange(7) + 0.00, MaxOfAll, color='#004c6d', width=0.25)
+            bar(arange(7) + 0.25, AvgOfAll, color='#286d8a', width=0.25)
+            bar(arange(7) + 0.50, Student, color='#008cc9', width=0.25)
+            xticks(arange(7), Subjects)
+            legend(labels=['Max', 'Average', self.SeatNum.get().upper()])
+            show()
         else:
             messagebox.showwarning('Error 404', 'File not found')
 
     def IndStud(self):
+        clf()
         if self.file != '' and self.SeatNum.get().upper() in self.SeatData:
             data = self.data
             col = data.columns
-            idx = pd.Index(self.SeatData)
+            idx = Index(self.SeatData)
             locData = idx.get_loc(self.SeatNum.get().upper())
             StudentData = data.loc[locData + 2, :]
-            SubjectData = np.array(StudentData[3:10]).astype(np.int)
+            SubjectData = array(StudentData[3:10]).astype(int)
             Subjects = [''.join(list(c)[:-6]) for c in col][3:10]
-            plt.ylim(0, 75)
-            plt.bar(Subjects, SubjectData)
-            plt.show()
+            ylim(0, 75)
+            bar(Subjects, SubjectData)
+            show()
         else:
             messagebox.showwarning('Error 404', 'File not found')
 
     def StudentDetail(self):
+        clf()
         if self.file != '' and self.SeatNum.get().upper() in self.SeatData:
             data = self.data
-            idx = pd.Index(self.SeatData)
+
+            idx = Index(self.SeatData)
             locData = idx.get_loc(self.SeatNum.get().upper())
-            Marks = np.array(data['Total [ 20 ]'])[locData+2]
-            NameValue = np.array(data['Name'])[locData]
-            Grade = np.array(data['Grade'])[locData+2]
-            Remark = np.array(data['Grade'])[locData+1].replace('..', 'l')
+            Marks = array(data['Total [ 20 ]'])[locData+2]
+            NameValue = array(data['Name'])[locData]
+            Grade = array(data['Grade'])[locData+2]
+            Remark = array(data['Grade'])[locData+1].replace('..', 'l')
             RemarkColor = ['green' if Remark == 'Successful' else 'red']
-            CGPA = np.array(data['Grade'])[locData]
-            StudentFrame = tk.Toplevel()
+            CGPA = array(data['Grade'])[locData]
+            StudentFrame = Toplevel()
             StudentFrame.geometry('700x350')
-            SeatLabel = tk.Label(master=StudentFrame, text='Seat  No. : {}'.format(self.SeatNum.get().upper()))
-            SeatLabel.grid(padx=20, pady=20, sticky=tk.W)
-            Name = tk.Label(master=StudentFrame, text='Name : {}'.format(NameValue))
-            Name.grid(row=1, column=0, padx=20, sticky=tk.W)
-            MarksLabel = tk.Label(master=StudentFrame, text='Marks : {}'.format(Marks))
-            MarksLabel.grid(row=2, column=0, padx=20, pady=20, sticky=tk.W)
-            GradeLabel = tk.Label(master=StudentFrame, text='Grade : {}'.format(Grade))
-            GradeLabel.grid(row=3, column=0, padx=20, sticky=tk.W)
-            CGPALabel = tk.Label(master=StudentFrame, text='CGPA : {}'.format(CGPA))
-            CGPALabel.grid(row=4, column=0, padx=20, pady=20, sticky=tk.W)
-            RemarkLabel = tk.Label(master=StudentFrame, text='Remark : {}'.format(Remark), fg=RemarkColor)
-            RemarkLabel.grid(row=5, column=0, padx=20, sticky=tk.W)
+            SeatLabel = ttk.Label(master=StudentFrame, text='Seat  No. : {}'.format(self.SeatNum.get().upper()))
+            SeatLabel.grid(padx=20, pady=20, sticky='W')
+            Name = ttk.Label(master=StudentFrame, text='Name : {}'.format(NameValue))
+            Name.grid(row=1, column=0, padx=20, sticky='W')
+            MarksLabel = ttk.Label(master=StudentFrame, text='Marks : {}'.format(Marks))
+            MarksLabel.grid(row=2, column=0, padx=20, pady=20, sticky='W')
+            GradeLabel = ttk.Label(master=StudentFrame, text='Grade : {}'.format(Grade))
+            GradeLabel.grid(row=3, column=0, padx=20, sticky='W')
+            CGPALabel = ttk.Label(master=StudentFrame, text='CGPA : {}'.format(CGPA))
+            CGPALabel.grid(row=4, column=0, padx=20, pady=20, sticky='W')
+            RemarkLabel = ttk.Label(master=StudentFrame, text='Remark : {}'.format(Remark), fg=RemarkColor)
+            RemarkLabel.grid(row=5, column=0, padx=20, sticky='W')
         else:
             messagebox.showwarning('Error 404', 'File not found')
 
 
-class TchrOptionFrame(tk.Frame):
+class TchrOptionFrame(Frame):
     data: Union[Union[TextFileReader, Series, DataFrame, None], Any]
 
     def __init__(self, parent, controller):
         self.file = ''
-        self.SeatNum = tk.StringVar()
-        tk.Frame.__init__(self, parent)
-        tk.Frame.config(self, bg=bg)
-        label = tk.Label(self, text='Teacher', font=LARGE_FONT, bg=bg, fg='white')
+        self.SeatData = array([])
+        self.SeatNum = StringVar()
+        Frame.__init__(self, parent)
+        Frame.config(self, bg=bg)
+        label = Label(self, text='Teacher', font=LARGE_FONT, bg=bg, fg='white')
         label.grid(row=0, column=1, padx=100, pady=10)
-        back = tk.ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StudentORTeacher))
+        back = ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StudentORTeacher))
         back.grid(row=0, column=0, padx=0, pady=10)
-        SeatNumEntry = tk.ttk.Entry(self, textvariable=self.SeatNum)
+        SeatNumEntry = ttk.Entry(self, textvariable=self.SeatNum)
         SeatNumEntry.grid(row=1, column=0, sticky='NW', padx=5, pady=125)
-        addFileBtn = tk.ttk.Button(self, text='Add File', command=lambda: self.getFile())
+        addFileBtn = ttk.Button(self, text='Add File', command=lambda: self.getFile())
         addFileBtn.grid(row=1, column=0, pady=150)
-        self.fileStatus = tk.Label(self, text='Add a File', bg=bg, fg='white')
+        self.fileStatus = Label(self, text='Add a File', bg=bg, fg='white')
         self.fileStatus.grid(row=1, column=1)
-        ClassPer = tk.ttk.Button(self, text='Class Performance', command=lambda: TryExcept(self.ClassPerformance))
-        ClassPer.grid(row=1, column=2)
-        ClassGrowth = tk.ttk.Button(self, text='Class Growth', command=lambda: TryExcept(self.ClassGrowth))
-        ClassGrowth.grid(row=1, column=2, pady=115, sticky='N')
-        Top3 = tk.ttk.Button(self, text='Top 5', command=lambda: TryExcept(self.Top3))
+        ClassPer = ttk.Button(self, text='Class Performance', command=lambda: TryExcept(self.ClassPerformance))
+        ClassPer.grid(row=1, column=2, pady=160)
+        ClassGrowth = ttk.Button(self, text='Class Growth', command=lambda: TryExcept(self.ClassGrowth))
+        ClassGrowth.grid(row=1, column=2, pady=40, sticky='N')
+        Top3 = ttk.Button(self, text='Top 5', command=lambda: TryExcept(self.Top3))
         Top3.grid(row=1, column=2, pady=80, sticky='N')
-        StudentDetail = tk.ttk.Button(self, text='Student Detail', command=lambda: self.StudentDetail())
-        StudentDetail.grid(row=1, column=2, pady=40, sticky='N')
+        StudentDetail = ttk.Button(self, text='Student Detail', command=lambda: self.StudentDetail())
+        StudentDetail.grid(row=1, column=2, pady=120, sticky='N')
+        PFButton = ttk.Button(self, text='Passed vs Failed', command=lambda: self.PassedVSFailed())
+        PFButton.grid(row=1, column=2, pady=0, sticky='N')
 
     def getFile(self):
         self.file = filedialog.askopenfilename(initialdir="D:/Actual Study Material/My projects/Python",
@@ -253,66 +254,86 @@ class TchrOptionFrame(tk.Frame):
             self.fileStatus.config(text='NO FILE ADDED', fg='red')
         else:
             self.fileStatus.config(text='FILE ADDED', fg='green')
-            self.data = pd.read_csv(self.file)
-            self.SeatData = np.array(self.data['Seat No'])
+            self.data = read_csv(self.file)
+            self.SeatData = array(self.data['Seat No'])
 
     def ClassPerformance(self):
+        clf()
         if self.file != '':
-            grade = np.array(self.data.Grade)[2::6]
-            u, c = np.unique(grade, return_counts=True)
+            grade = array(self.data.Grade)[2::6]
+            u, c = unique(grade, return_counts=True)
             GradeCount = dict(zip(u, c))
-            plt.title("Student's data")
-            plt.pie(GradeCount.values(), labels=GradeCount.keys(), autopct='%.2f %%',
-                    explode=np.array([0.03] * len(GradeCount)))
-            plt.legend()
-            plt.show()
+            title("Student's data")
+            pie(GradeCount.values(), labels=GradeCount.keys(), autopct='%.2f %%',
+                explode=array([0.03] * len(GradeCount)))
+            legend()
+            show()
         else:
             messagebox.showwarning('Error 404', 'File not found.')
 
-    def ClassGrowth(self):
+    def PassedVSFailed(self):
+        clf()
         if self.file != '':
-            semData = [np.mean(self.data.iloc[:, i]) for i in range(1, len(self.data.columns) - 1)]
-            plt.plot(semData)
-            plt.ylim(5, 10)
-            plt.legend(labels=['Growth in avg. CGPA '])
-            plt.xticks(np.arange(6), ['I', 'II', 'III', 'IV', 'V', 'VI'])
-            plt.show()
+            PF = array(self.data.Grade)[1::6]
+            u, c = unique(PF, return_counts=True)
+            PFCount = dict(zip(u, c))
+            title("Student's data")
+            pie(PFCount.values(), labels=PFCount.keys(), autopct='%.2f %%',
+                explode=array([0.03] * len(PFCount)))
+            legend()
+            show()
+
+    def ClassGrowth(self):
+        clf()
+        if self.file != '' and self.SeatNum.get().upper() in self.SeatData:
+            semData = [mean(self.data.iloc[:, i]) for i in range(1, len(self.data.columns) - 2)]
+            idx = Index(self.SeatData)
+            locData = idx.get_loc(self.SeatNum.get().upper())
+            StudentData = array(self.data.loc[locData, :])[1:-2]
+            plot(semData)
+            plot(StudentData)
+            ylim(5, 10)
+            legend(labels=['Average', self.SeatNum.get().upper()])
+            xticks(arange(6), ['I', 'II', 'III', 'IV', 'V', 'VI'])
+            show()
         else:
             messagebox.showwarning('Error 404', 'File not found.')
 
     def Top3(self):
+        clf()
         if self.file != '':
             Total = self.data['Total [ 20 ]'][2::6]
             SeatNo = self.data['Seat No'][::6]
             StudentData = sorted(list(zip(Total, SeatNo)))
-            SeatValue = np.array([StudentData[-5:][i][1] for i in range(5)])
-            Marks = np.array([StudentData[-5:][i][0] for i in range(5)])
-            plt.bar(SeatValue,  Marks)
-            plt.ylim(np.min(Marks)-50, np.max(Marks)+50)
-            plt.show()
+            SeatValue = array([StudentData[-5:][i][1] for i in range(5)])
+            Marks = array([StudentData[-5:][i][0] for i in range(5)])
+            bar(SeatValue,  Marks)
+            ylim(min(Marks)-50, max(Marks)+50)
+            show()
 
     def StudentDetail(self):
+        clf()
         if self.file != '' and self.SeatNum.get().upper() in self.SeatData:
             data = self.data
-            idx = pd.Index(self.SeatData)
+            idx = Index(self.SeatData)
             locData = idx.get_loc(self.SeatNum.get().upper())
-            Marks = np.array(data['Total [ 20 ]'])[locData + 2]
-            NameValue = np.array(data['Name'])[locData]
-            Grade = np.array(data['Grade'])[locData + 2]
-            Remark = np.array(data['Grade'])[locData + 1].replace('..', 'll')
-            RemarkColor = ['green' if Remark == 'Successfull' else 'red']
-            StudentFrame = tk.Toplevel()
+            Marks = array(data['Total [ 20 ]'])[locData + 2]
+            NameValue = array(data['Name'])[locData]
+            Grade = array(data['Grade'])[locData + 2]
+            Remark = array(data['Grade'])[locData + 1].replace('..', 'l')
+            RemarkColor = ['green' if Remark == 'Successful' else 'red']
+            StudentFrame = Toplevel()
             StudentFrame.geometry('700x350')
-            SeatLabel = tk.Label(master=StudentFrame, text='Seat  No. : {}'.format(self.SeatNum.get().upper()))
-            SeatLabel.grid(padx=20, pady=20, sticky=tk.W)
-            Name = tk.Label(master=StudentFrame, text='Name : {}'.format(NameValue))
-            Name.grid(row=1, column=0, padx=20, sticky=tk.W)
-            MarksLabel = tk.Label(master=StudentFrame, text='Marks : {}'.format(Marks))
-            MarksLabel.grid(row=2, column=0, padx=20, pady=20, sticky=tk.W)
-            GradeLabel = tk.Label(master=StudentFrame, text='Grade : {}'.format(Grade))
-            GradeLabel.grid(row=3, column=0, padx=20, sticky=tk.W)
-            RemarkLabel = tk.Label(master=StudentFrame, text='Remark : {}'.format(Remark), fg=RemarkColor)
-            RemarkLabel.grid(row=4, column=0, padx=20, pady=20, sticky=tk.W)
+            SeatLabel = ttk.Label(master=StudentFrame, text='Seat  No. : {}'.format(self.SeatNum.get().upper()))
+            SeatLabel.grid(padx=20, pady=20, sticky='W')
+            Name = ttk.Label(master=StudentFrame, text='Name : {}'.format(NameValue))
+            Name.grid(row=1, column=0, padx=20, sticky='W')
+            MarksLabel = ttk.Label(master=StudentFrame, text='Marks : {}'.format(Marks))
+            MarksLabel.grid(row=2, column=0, padx=20, pady=20, sticky='W')
+            GradeLabel = ttk.Label(master=StudentFrame, text='Grade : {}'.format(Grade))
+            GradeLabel.grid(row=3, column=0, padx=20, sticky='W')
+            RemarkLabel = ttk.Label(master=StudentFrame, text='Remark : {}'.format(Remark), fg=RemarkColor)
+            RemarkLabel.grid(row=4, column=0, padx=20, pady=20, sticky='W')
         else:
             messagebox.showwarning('Error 404', 'File not found')
 
