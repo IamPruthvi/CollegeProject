@@ -6,12 +6,14 @@ from matplotlib import style, use
 from numpy import array, transpose, max, average, mean, arange, unique, min
 from pandas import DataFrame, Series, read_csv, Index
 from pandas.io.parsers import TextFileReader
+from webbrowser import open as op
 
 style.use('ggplot')
 use('TkAgg')
 
 # TODO Add Congratulations to topper.
 # TODO ZIP and mail.
+# TODO Create PDF of saved Images
 
 path = 'graph.png'
 LARGE_FONT = ('RobotoMono-Medium', 15)
@@ -45,8 +47,14 @@ class SPE_src(Tk):
         graphMenu.add_command(label='Bar', )
         graphMenu.add_command(label='Pie', )
         graphMenu.add_command(label='line', )
+        CollegeMenu = Menu(menuBar, tearoff=False)
+        CollegeMenu.add_command(label='Info', command=lambda: op('http://nmfdegree.edu.in/#'))
+        HelpBar = Menu(menuBar, tearoff=False)
+        HelpBar.add_command(label='Tutorial', command=lambda: op('Tutorial Page V2.html'))
         menuBar.add_cascade(label='File', menu=fileMenu)
         menuBar.add_cascade(label='Graph', menu=graphMenu)
+        menuBar.add_cascade(label='Info', menu=CollegeMenu)
+        menuBar.add_cascade(label='Help', menu=HelpBar)
         Tk.config(self, menu=menuBar)
 
         DT = ttk.Style()
@@ -211,7 +219,7 @@ class StudOptionFrame(Frame):
             GradeLabel.grid(row=3, column=0, padx=20, sticky='W')
             CGPALabel = ttk.Label(master=StudentFrame, text='CGPA : {}'.format(CGPA))
             CGPALabel.grid(row=4, column=0, padx=20, pady=20, sticky='W')
-            RemarkLabel = ttk.Label(master=StudentFrame, text='Remark : {}'.format(Remark), fg=RemarkColor)
+            RemarkLabel = Label(master=StudentFrame, text='Remark : {}'.format(Remark), fg=RemarkColor)
             RemarkLabel.grid(row=5, column=0, padx=20, sticky='W')
         else:
             messagebox.showwarning('Error 404', 'File not found')
@@ -322,6 +330,7 @@ class TchrOptionFrame(Frame):
             Grade = array(data['Grade'])[locData + 2]
             Remark = array(data['Grade'])[locData + 1].replace('..', 'l')
             RemarkColor = ['green' if Remark == 'Successful' else 'red']
+            CGPA = array(data['Grade'])[locData]
             StudentFrame = Toplevel()
             StudentFrame.geometry('700x350')
             SeatLabel = ttk.Label(master=StudentFrame, text='Seat  No. : {}'.format(self.SeatNum.get().upper()))
@@ -332,8 +341,10 @@ class TchrOptionFrame(Frame):
             MarksLabel.grid(row=2, column=0, padx=20, pady=20, sticky='W')
             GradeLabel = ttk.Label(master=StudentFrame, text='Grade : {}'.format(Grade))
             GradeLabel.grid(row=3, column=0, padx=20, sticky='W')
-            RemarkLabel = ttk.Label(master=StudentFrame, text='Remark : {}'.format(Remark), fg=RemarkColor)
-            RemarkLabel.grid(row=4, column=0, padx=20, pady=20, sticky='W')
+            CGPALabel = ttk.Label(master=StudentFrame, text='CGPA : {}'.format(CGPA))
+            CGPALabel.grid(row=4, column=0, padx=20, pady=20, sticky='W')
+            RemarkLabel = Label(master=StudentFrame, text='Remark : {}'.format(Remark), fg=RemarkColor)
+            RemarkLabel.grid(row=5, column=0, padx=20, sticky='W')
         else:
             messagebox.showwarning('Error 404', 'File not found')
 
