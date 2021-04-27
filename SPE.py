@@ -9,6 +9,7 @@ from pandas import DataFrame, Series, read_csv, Index
 from pandas.io.parsers import TextFileReader
 from webbrowser import open as op
 from PyPDF2 import PdfFileMerger
+from functools import partial
 
 style.use('ggplot')
 use('TkAgg')
@@ -22,11 +23,10 @@ bg = '#282c34'
 
 def TryExcept(tryFunc):
     try:
-        print('using TryExcept')
-        return tryFunc()
+        tryFunc()
 
-    except (AttributeError or KeyError or ValueError or TypeError):
-        print('Attribute Error Found')
+    except (AttributeError, KeyError, ValueError, TypeError):
+        print('Error Found')
 
 
 class SPE_src(Tk):
@@ -139,7 +139,7 @@ class StudOptionFrame(Frame):
         back.grid(row=0, column=0, padx=0, pady=10)
         SeatNumEntry = ttk.Entry(self, textvariable=self.SeatNum)
         SeatNumEntry.grid(row=5, column=0, padx=10, pady=10)
-        addFileBtn = ttk.Button(self, text='Add File', command=lambda: TryExcept(self.getFile))
+        addFileBtn = ttk.Button(self, text='Add File', command=lambda: TryExcept(partial(self.getFile)))
         addFileBtn.grid(row=6, column=0)
         self.fileStatus = Label(self, text='Add a File', bg=bg, fg='white')
         self.fileStatus.grid(row=5, column=3, padx=100)
@@ -147,12 +147,12 @@ class StudOptionFrame(Frame):
         ExportPDF.grid(row=8, column=5, pady=5)
         SubVSMks = ttk.Button(self, text='Subject VS Marks', width=25)
         SubVSMks.grid(row=3, column=5, pady=10)
-        AllSem = ttk.Button(self, text='Your Performance VS Class', command=lambda: TryExcept(self.all_sem_performance),
+        AllSem = ttk.Button(self, text='Your Performance VS Class', command=lambda: TryExcept(partial(self.all_sem_performance)),
                             width=25)
         AllSem.grid(row=4, column=5, pady=10)
-        IndStud = ttk.Button(self, text='Individual Student', command=lambda: TryExcept(self.IndStud), width=25)
+        IndStud = ttk.Button(self, text='Individual Student', command=lambda: TryExcept(partial(self.IndStud)), width=25)
         IndStud.grid(row=5, column=5)
-        StudentDetail = ttk.Button(self, text='Student Detail', command=lambda: TryExcept(self.StudentDetail), width=25)
+        StudentDetail = ttk.Button(self, text='Student Detail', command=lambda: TryExcept(partial(self.StudentDetail)), width=25)
         StudentDetail.grid(row=6, column=5, pady=10)
         self.cb = [IntVar(), IntVar()]
         AllSemRB = Checkbutton(self, text='', variable=self.cb[0], bg=bg)
@@ -163,9 +163,9 @@ class StudOptionFrame(Frame):
 
     def Export(self):
         if self.cb[0].get():
-            TryExcept(self.all_sem_performance)
+            TryExcept(partial(self.all_sem_performance))
         if self.cb[1].get():
-            TryExcept(self.IndStud)
+            TryExcept(partial(self.IndStud))
 
     def getFile(self):
         try:
@@ -280,25 +280,25 @@ class TchrOptionFrame(Frame):
         label.grid(row=0, column=3, pady=10, padx=120)
         label2 = Label(self, text='', bg=bg)
         label2.grid(row=1, column=1, pady=25)
-        back = ttk.Button(self, text='<Back', command=lambda: controller.show_frame(StudentORTeacher))
+        back = ttk.Button(self, text='<Back', command=controller.show_frame(StudentORTeacher))
         back.grid(row=0, column=0, pady=10)
         SeatNumEntry = ttk.Entry(self, textvariable=self.SeatNum)
         SeatNumEntry.grid(row=4 + 1, column=0, padx=10, pady=10)
-        addFileBtn = ttk.Button(self, text='Add File', command=lambda: TryExcept(self.getFile))
+        addFileBtn = ttk.Button(self, text='Add File', command=lambda: TryExcept(partial(self.getFile)))
         addFileBtn.grid(row=5 + 1, column=0)
         self.fileStatus = Label(self, text='Add a File', bg=bg, fg='white')
         self.fileStatus.grid(row=5, column=3, padx=100)
-        ClassPer = ttk.Button(self, text='Class Performance', command=lambda: TryExcept(self.ClassPerformance),
+        ClassPer = ttk.Button(self, text='Class Performance', command=lambda: TryExcept(partial(self.ClassPerformance)),
                               width=25)
         ClassPer.grid(row=6, column=5, pady=5)
-        ClassGrowth = ttk.Button(self, text='Class Growth', command=lambda: TryExcept(self.ClassGrowthInfo), width=25)
+        ClassGrowth = ttk.Button(self, text='Class Growth', command=lambda: TryExcept(partial(self.ClassGrowthInfo)), width=25)
         ClassGrowth.grid(row=4, column=5, pady=10)
-        Top5 = ttk.Button(self, text='Top 5', command=lambda: TryExcept(self.Top5), width=25)
+        Top5 = ttk.Button(self, text='Top 5', command=lambda: TryExcept(partial(self.Top5)), width=25)
         Top5.grid(row=5, column=5)
-        StudentDetail = ttk.Button(self, text='Student Detail', command=lambda: TryExcept(self.StudentDetailInfo),
+        StudentDetail = ttk.Button(self, text='Student Detail', command=lambda: TryExcept(partial(self.StudentDetailInfo)),
                                    width=25)
         StudentDetail.grid(row=3, column=5, pady=10)
-        PFButton = ttk.Button(self, text='Passed vs Failed', command=lambda: TryExcept(self.PassedVSFailed), width=25)
+        PFButton = ttk.Button(self, text='Passed vs Failed', command=lambda: TryExcept(partial(self.PassedVSFailed)), width=25)
         PFButton.grid(row=7, column=5, pady=10)
         ExportAll = ttk.Button(self, text='Export Selected', width=25, command=self.Export)
         ExportAll.grid(row=8, column=5, pady=5)
